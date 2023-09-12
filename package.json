@@ -1,0 +1,9 @@
+{
+  "name": "backend",
+  "main": "src/index.js",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "fastify": "^4.23.0"
+  }
+}

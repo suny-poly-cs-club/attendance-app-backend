@@ -1,14 +1,20 @@
-import fastify from 'fastify';
+import fastify from "fastify";
 
 const PORT = Number(process.env.PORT || 3000);
 
 const app = fastify();
 
-app.listen(process.env.PORT || 3000, (err, addr) => {
-  if (err) {
-    console.error('Failed to listen on port', PORT);
-    throw err;
-  }
+app
+  .listen({port: PORT})
+  .catch(err => {
+    console.error(`Failed to listen on port ${PORT}:`, err);
+  })
+  .then(addr => {
+    console.log("Listening on", addr);
+  });
 
-  console.log('Listening on', addr);
+// for some reason, sending SIGINT through Docker
+// doesn't kill it without this
+process.on('SIGINT', () => {
+  process.exit();
 });

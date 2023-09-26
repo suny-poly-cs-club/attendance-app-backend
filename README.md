@@ -15,3 +15,14 @@ $ docker build . -t app-backend
 # run on port 3000
 $ docker run --rm -i -p 3000:3000 app-backend
 ```
+
+# Documentation
+### Endpoints
+
+`GET /user`
+`GET /user/:id`
+`GET /qr`
+
+`POST /sign-up`
+`POST /login`
+`POST /check-in`

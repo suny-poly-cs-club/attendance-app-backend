@@ -1,8 +1,21 @@
 import fastify from "fastify";
 
+import {userRoutes} from './routes/user.js';
+
 const PORT = Number(process.env.PORT || 3000);
 
 const app = fastify();
+
+app.register(userRoutes, {prefix: '/user'});
+
+app.get('/', (request, reply) => {
+  return {hi: 'hello'};
+});
+
+app.post('/', (request, reply) => {
+  console.log(request.body);
+  return {};
+});
 
 app
   .listen({port: PORT})

@@ -29,7 +29,8 @@ app
 	
 
 app.post("/sign-up",(request,reply) =>{
-	
+	reply.code(500);
+	return '{"status":"ERROR"}';
 });
 
 app.post("/login",(request,reply) =>{

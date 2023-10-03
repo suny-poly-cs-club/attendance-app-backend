@@ -54,3 +54,7 @@ function saltPassword(password){
 	let saltRounds = 16;
 	return bcrypt.genSalt(saltRounds,password);
 }
+
+function generateNewToken(){
+	
+}

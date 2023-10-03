@@ -2,10 +2,13 @@ import fastify from "fastify";
 
 import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
+import {Database} from './database.js';
 
 const PORT = Number(process.env.PORT || 3000);
 
 const app = fastify();
+
+const database = new Database();
 
 app.register(userRoutes, {prefix: '/user'});
 app.register(postEndpoints, {prefix: '/'});

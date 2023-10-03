@@ -1,11 +1,11 @@
 export class Database {
-  getUser(id) {SELECT * FROM users WHERE "userID" = id;}
+  getUser(id) {return 'SELECT * FROM users WHERE "userID" = id;'}
 
-  getCheckedInUsers(date) {SELECT * FROM checkIN WHERE "checkInDate" = date;}
+  getCheckedInUsers(date) {return 'SELECT * FROM checkIN WHERE "checkInDate" = date;''}
 
-  checkInUser(userID, code) {}
+  checkInUser(userID, code) {return ''}
 
-  registerUser() {INSERT INTO users
+  registerUser() {return 'INSERT INTO users
       ("firstName", "lastName", "email", "admin", "passwordHash")
-      VALUES (firstName, lastName, email, FALSE, passwordHash); }
+      VALUES (firstName, lastName, email, FALSE, passwordHash);' }
 }

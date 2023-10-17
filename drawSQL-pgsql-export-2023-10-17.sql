@@ -37,8 +37,8 @@ CREATE TABLE "clubDays"(
 ALTER TABLE
     "clubDays" ADD PRIMARY KEY("clubDayID");
 ALTER TABLE
-    "token" ADD CONSTRAINT "token_userid_foreign" FOREIGN KEY("userID") REFERENCES "users"("userID");
+    "clubDays" ADD CONSTRAINT "clubdays_clubdaydate_unique" UNIQUE("clubDayDate");
 ALTER TABLE
-    "clubDays" ADD CONSTRAINT "clubdays_clubdaydate_foreign" FOREIGN KEY("clubDayDate") REFERENCES "checkIn"("checkInDate");
+    "token" ADD CONSTRAINT "token_userid_foreign" FOREIGN KEY("userID") REFERENCES "users"("userID");
 ALTER TABLE
     "checkIn" ADD CONSTRAINT "checkin_userid_foreign" FOREIGN KEY("userID") REFERENCES "users"("userID");

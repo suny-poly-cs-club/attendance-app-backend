@@ -13,11 +13,20 @@ export const postEndpoints = (app, options ,done) =>{
 		let lastName = request.lastName;
 		let id = request.studentID;
 		let password = request.password;
-		reply.code(500);
-		return '{"status":"ERROR"}';
+		let token = database.registerUser(email,password,firstName,lastName,id);
+		
+		reply.type("application/json");
+		if(token.startsWith("error")){
+			reply.status(401);
+			return '{"success":false,"message":"'+token+'"}'
+		}else{
+			reply.status(200);
+			return '{"success":true,"message":"","token":'+token+'}'
+		}
 	});
 	
 	app.post("/login",(request,reply) =>{	
+		reply.type("application/json");
 		let userEmail = request.email;
 		let rawPassword = request.password;
 		let saltedPassword = saltPassword(rawPassword);
@@ -40,6 +49,7 @@ export const postEndpoints = (app, options ,done) =>{
 	});
 	
 	app.post("/check-in", (request,reply) =>{
+		reply.type("application/json");
 		var token = request.body.token;
 		var qrCode = request.body.code;
 		var success  = database.checkInUser(token,qrCode);

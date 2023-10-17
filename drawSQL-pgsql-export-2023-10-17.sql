@@ -31,12 +31,14 @@ CREATE TABLE "clubDays"(
     "clubDayID" bigserial NOT NULL,
     "clubDayDate" DATE NOT NULL,
     "clubDayStartTime" TIME(0) WITHOUT TIME ZONE NOT NULL,
-    "QRCode" BIGINT NOT NULL,
+    "QRCode" VARCHAR(255) NOT NULL,
     "clubDayEndTime" BIGINT NOT NULL
 );
 ALTER TABLE
     "clubDays" ADD PRIMARY KEY("clubDayID");
 ALTER TABLE
     "token" ADD CONSTRAINT "token_userid_foreign" FOREIGN KEY("userID") REFERENCES "users"("userID");
+ALTER TABLE
+    "clubDays" ADD CONSTRAINT "clubdays_clubdaydate_foreign" FOREIGN KEY("clubDayDate") REFERENCES "checkIn"("checkInDate");
 ALTER TABLE
     "checkIn" ADD CONSTRAINT "checkin_userid_foreign" FOREIGN KEY("userID") REFERENCES "users"("userID");

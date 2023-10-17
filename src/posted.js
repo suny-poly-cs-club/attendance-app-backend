@@ -8,7 +8,7 @@ export const postEndpoints = (app, options ,done) =>{
 		//last name
 		//student id
 		//password
-		let email = requet.email;
+		let email = request.email;
 		let firstName = request.firstName;
 		let lastName = request.lastName;
 		let id = request.studentID;

@@ -55,22 +55,3 @@ function saltPassword(password){
 	let saltRounds = 16;
 	return bcrypt.genSalt(saltRounds,password);
 }
-
-function generateNewToken(){
-	let token = "";
-	let lowercase = "a".charCodeAt(0);
-	let uppercase = "A".charCodeAt(0);
-	for(let i=0;i<128;i++){
-		let sel = Math.floor(Math.random()*100000%3)
-		if(sel==0){//number case
-			token+=Math.floor(Math.random()*1000000%10)
-		}
-		else if(sel==1){//lower case
-			token+=String.fromCharCode(Math.floor(Math.random()*1000000%26)+lowercase)
-		}
-		else if(sel==2){//upper case
-			token+=String.fromCharCode(Math.floor(Math.random()*1000000%26)+uppercase)
-		}
-	}
-	return token
-}

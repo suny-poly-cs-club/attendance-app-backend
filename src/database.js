@@ -99,8 +99,6 @@ export class Database {
       [email, password]
     );
 
-    console.log(res.rows);
-
     return res.rows?.length === 1;
   }
 

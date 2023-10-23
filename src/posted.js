@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import {Database} from './database.js';
 const database = new Database();
 export const postEndpoints = (app, options ,done) =>{

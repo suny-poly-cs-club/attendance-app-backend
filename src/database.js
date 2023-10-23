@@ -1,5 +1,29 @@
+/**
+ * @typedef User
+ * @property {number} userID
+ * @property {string} firstName
+ * @property {string} lastName
+ * @property {string} email
+ * @property {boolean} admin
+ * @property {string} passwordHash
+ */
+
 export class Database {
-  getUser(id) {return 'SELECT * FROM users WHERE "userID" = id;'}
+  constructor() {
+    const user = process.env.POSTGRES_USER;
+    const pass = process.env.POSTGRES_PASS;
+    const db = process.env.POSTGRES_DB;
+    const host = process.env.POSTGRES_HOST;
+    const port = process.env.POSTGRES_PORT;
+  }
+
+  /**
+   * Returns a user by ID
+   * @param {number} id
+   * @returns {Promise<User | null>}
+   */
+  getUser(id) {
+    return 'SELECT * FROM users WHERE "userID" = id;'}
 
   getCheckedInUsers(date) {
     return 'SELECT * FROM checkIN WHERE "checkInDate" = date;';
@@ -9,6 +33,9 @@ export class Database {
     return '';
   }
 
+  /**
+   * Registers a user
+   */
   async registerUser({firstName, lastName, email, password, admin = false}) {
     // to hash a password:
     // `crypt('mypassword', gen_salt('bf'))`
@@ -25,23 +52,4 @@ export class Database {
     // `select * from users where email = '' and passwordHash = crypt('', passhash) LIMIT 1;`
     // return generated token
   }
-}
-
-function generateNewToken() {
-	let token = "";
-	let lowercase = "a".charCodeAt(0);
-	let uppercase = "A".charCodeAt(0);
-	for(let i=0;i<128;i++){
-		let sel = Math.floor(Math.random()*100000%3)
-		if(sel==0){//number case
-			token+=Math.floor(Math.random()*1000000%10)
-		}
-		else if(sel==1){//lower case
-			token+=String.fromCharCode(Math.floor(Math.random()*1000000%26)+lowercase)
-		}
-		else if(sel==2){//upper case
-			token+=String.fromCharCode(Math.floor(Math.random()*1000000%26)+uppercase)
-		}
-	}
-	return token
 }

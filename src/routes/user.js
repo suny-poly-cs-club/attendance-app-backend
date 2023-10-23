@@ -1,7 +1,11 @@
-export const userRoutes = (app, options, done) => {
+import {authenticated} from '../auth.js';
+
+export const userRoutes = (app, _options, done) => {
+  app.addHook('onRequest', authenticated);
+
   // returns data about the current user
-  app.get('/', (req, reply) => {
-    return 'hi';
+  app.get('/', async req => {
+    return req.user;
   });
 
   done();

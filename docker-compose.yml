@@ -2,16 +2,32 @@ services:
   backend:
     build: '.'
     ports:
-      - '3000:3000'
+      - '${PORT}:${PORT}'
+    env_file:
+      - '.env'
+    depends_on:
+      - 'migrate'
+      - 'postgres'
+
+  migrate:
+    image: 'amacneil/dbmate'
+    command: 'up'
+    environment:
+      DATABASE_URL: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable'
+    env_file:
+      - '.env'
+    volumes:
+      - './db:/db'
+    depends_on:
+      - 'postgres'
 
   postgres:
     image: 'postgres:16'
-    ports:
-      - '5432:5432'
     environment:
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: 'postgres'
-      POSTGRES_DB: 'postgres'
+      TZ: 'America/New_York'
+      PGTZ: 'America/New_York'
+    env_file:
+      - '.env'
     volumes:
       - 'postgres_data:/var/lib/postgresql'
 

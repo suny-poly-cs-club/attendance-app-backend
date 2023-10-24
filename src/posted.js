@@ -13,7 +13,7 @@ export const postEndpoints = (app, options ,done) =>{
 		let id = request.studentID;
 		let password = request.password;
 		let user = await database.registerUser(firstName,lastName,email,password);
-		let token request.ctx.authManager.createToken(user);
+		let token = request.ctx.authManager.createToken(user);
 		
 		
 		reply.type("application/json");
@@ -31,15 +31,11 @@ export const postEndpoints = (app, options ,done) =>{
 		reply.type("application/json");
 		let userEmail = request.email;
 		let rawPassword = request.password;
-		let saltedPassword = saltPassword(rawPassword);
-		let userid = "DATABASE: GET USER ID FROM EMAIL";
-		if(!userid){
-			reply.code(403);
-			return '{"status": false , "message":"invalid username or password"}'
-		}
-		let passwordFromDataBase = "DATABASE: GET PASSWORD BASAED ON USER ID"
-		if(saltedPassword == passwordFromDataBase){
-			let token = generateNewToken();
+		
+		let loginSuccess = await database.isUserPasswordValid(userEmail,rawPassword);
+		if(loginSuccess){
+			let user = await database.getUserByEmail(userEmail);
+			let token = request.ctx.authManager.createToken(user);
 			return '{"status": true , "message": " ", "token": "'+token+'"}'
 		}else{
 			reply.code(403);
@@ -51,8 +47,9 @@ export const postEndpoints = (app, options ,done) =>{
 	app.post("/check-in", async (request,reply) =>{
 		let database = request.cxt.db;
 		reply.type("application/json");
-		var token = request.body.token;
 		var qrCode = request.body.code;
+		let user = request.ctx.getAuthenticatedUser();//automaticaly reads the token
+		
 		var success  = await database.checkInUser(token,qrCode);
 		return '{"success": '+success+'}';	
 	});

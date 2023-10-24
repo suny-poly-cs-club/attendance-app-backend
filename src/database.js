@@ -55,7 +55,22 @@ export class Database {
     );
 
     const user = res.rows[0];
-    return user ? mapUser(res.rows[0]) : null;
+    return user ? mapUser(user) : null;
+  }
+
+  /**
+   * Returns a user by email
+   * @param {number} email
+   * @returns {Promise<User | null>}
+   */
+  async getUserByEmail(email) {
+    const res = await this.client.query(
+      'SELECT * FROM users WHERE email = $1::text',
+      [email]
+    );
+
+    const user = res.rows[0];
+    return user ? mapUser(user) : null;
   }
 
   /**

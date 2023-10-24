@@ -6,6 +6,7 @@ import {postEndpoints} from './posted.js';
 import {Context} from "./context.js";
 import {Database} from './database.js';
 import {AuthManager} from './auth.js';
+import {checkInRoutes} from './routes/checkIn.js';
 
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
@@ -29,8 +30,9 @@ const main = async () => {
     done();
   });
 
-  app.register(userRoutes, {prefix: '/user', onRequest: {}});
+  app.register(userRoutes, {prefix: '/user'});
   app.register(postEndpoints, {prefix: '/'});
+  app.register(checkInRoutes, {prefix: '/check-in'})
 
   try {
     await app.listen({

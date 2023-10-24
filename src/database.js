@@ -194,3 +194,8 @@ export class Database {
     return res.rows;
   }
 }
+
+export const PostgresErrorCode = {
+  UniqueViolation: '23505',
+  ExclusionViolation: '23P01',
+};

@@ -24,7 +24,7 @@ export class AuthManager {
       {},
       this.#jwtSecret,
       {
-        subject: user.userID.toString(),
+        subject: user.id.toString(),
         expiresIn: '1h',
         algorithm: 'HS256',
       }

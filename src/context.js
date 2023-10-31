@@ -1,5 +1,6 @@
 import {AuthManager} from './auth.js';
 import {Database} from './database.js';
+import {QRManager} from './qr.js';
 
 /**
  * A class created with every request that holds instances of everything used around the app
@@ -18,6 +19,13 @@ export class Context {
    * @type {AuthManager}
    */
   authManager;
+
+
+  /**
+   * The qr manager instance
+   * @type {QRManager}
+   */
+  qrManager;
 
   /** Fastify request */
   req;

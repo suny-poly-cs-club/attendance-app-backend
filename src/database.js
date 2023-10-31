@@ -3,11 +3,18 @@ const {Client} = pg;
 
 /**
  * @typedef User
- * @property {number} userID
+ * @property {number} id
  * @property {string} firstName
  * @property {string} lastName
  * @property {string} email
  * @property {boolean} isAdmin
+ */
+
+/**
+ * @typedef ClubDay
+ * @property {number} id
+ * @property {Date} startsAt
+ * @property {Date} endsAt
  */
 
 const mapUser = ({
@@ -17,6 +24,12 @@ const mapUser = ({
   email,
   is_admin: isAdmin
 }) => ({id, firstName, lastName, email, isAdmin});
+
+const mapClubDay = ({
+  id,
+  starts_at: startsAt,
+  ends_at: endsAt,
+}) => ({id, startsAt, endsAt});
 
 export class Database {
   client;
@@ -136,8 +149,8 @@ export class Database {
       [startsAt, endsAt]
     );
 
-    // TODO: to camel
-    return res.rows[0];
+    const cd = res.rows[0];
+    return cd ? mapClubDay(cd) : null;
   }
 
   async getCurrentClubDay() {
@@ -145,8 +158,23 @@ export class Database {
       'SELECT * FROM club_days WHERE NOW() BETWEEN starts_at AND ends_at'
     );
 
-    // TODO: to camel
-    return res.rows[0];
+    const cd = res.rows[0];
+    return cd ? mapClubDay(cd) : null;
+  }
+
+  /**
+   * Gets a club day by its ID
+   * @param {number} id
+   * @returns {ClubDay}
+   */
+  async getClubDay(id) {
+    const res = await this.client.query(
+      'SELECT * FROM club_days WHERE id = $1::int',
+      [id]
+    );
+
+    const cd = res.rows[0];
+    return cd ? mapClubDay(cd) : null;
   }
 
   ////////// Check Ins //////////

@@ -1,5 +1,6 @@
 services:
   backend:
-    command: 'pnpm nodemon'
+    command: 'pnpm exec nodemon'
     volumes:
       - '.:/usr/src/app'
+      - '/usr/src/app/node_modules'

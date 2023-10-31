@@ -12,5 +12,11 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "scripts": {
+    "build": "docker compose build",
+    "dev": "docker compose down && docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres && docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build backend",
+    "psql": "docker compose exec postgres psql -U postgres db",
+    "dbmate": "docker compose run migrate"
   }
 }

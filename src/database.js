@@ -177,6 +177,22 @@ export class Database {
     return cd ? mapClubDay(cd) : null;
   }
 
+  async getAllClubDays() {
+    const res = await this.client.query(
+      `
+        select cd.*, coalesce(ci.attendees, 0)::int as attendees
+        from club_days cd
+        left join
+            (select club_day_id, count(*) as attendees
+            from check_ins
+            group by club_day_id) ci
+        on cd.id = ci.club_day_id;
+      `
+    );
+
+    return res.rows;
+  }
+
   ////////// Check Ins //////////
 
   /**

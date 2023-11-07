@@ -4,3 +4,7 @@ services:
     volumes:
       - '.:/usr/src/app'
       - '/usr/src/app/node_modules'
+
+  postgres:
+    ports:
+      - '5432:5432'

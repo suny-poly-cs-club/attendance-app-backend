@@ -1,3 +1,7 @@
+import qr from 'qrcode';
+
+import {setTimeout} from 'node:timers/promises';
+
 import {authenticated} from '../auth.js';
 
 const getClubDay = async (req, reply) => {
@@ -44,6 +48,13 @@ export const clubDayRoutes = (app, _options, done) => {
     return cd;
   });
 
+  app.get('/', async (req, reply) => {
+    // TODO: paginate this maybe
+    const clubDays = await req.ctx.db.getAllClubDays();
+    // await setTimeout(5000);
+    return clubDays;
+  });
+
   app.get(
     '/:id',
     {onRequest: [getClubDay]},
@@ -60,6 +71,54 @@ export const clubDayRoutes = (app, _options, done) => {
       return {token: qrToken};
     }
   );
+
+  app.get(
+    '/:id/qr.svg',
+    {onRequest: [getClubDay]},
+    async (req, reply) => {
+      const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+      const svg = await qr.toString(qrToken, {type: 'svg'});
+      return reply.type('image/svg+xml').send(svg);
+    }
+  );
+
+  app.get(
+    '/:id/qr.png',
+    {onRequest: [getClubDay]},
+    async (req, reply) => {
+      const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+      const png = qr.toBuffer(qrToken, {type: 'png'});
+      return reply.type('image/png').send(png);
+    }
+  );
+
+  // app.get(
+  //   '/:id/qr.:ext',
+  //   {onRequest: [getClubDay]},
+  //   async (req, reply) => {
+  //     const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+
+  //     const ext = req.params.ext.toLowerCase();
+
+  //     const ContentTypeMap = {
+  //       png: 'image/png',
+  //       svg: 'image/svg+xml',
+  //     };
+
+  //     const RenderFnMap = {
+  //       png: () => qr.toBuffer(qrToken, {type: 'png'}),
+  //       svg: () => qr.toString(qrToken, {type: 'svg'}),
+  //     };
+
+  //     if (!(ext in ContentTypeMap)) {
+  //       return reply.status(404).send();
+  //     }
+
+  //     reply.type(ContentTypeMap[ext]);
+
+  //     return RenderFnMap[ext]();
+  //   }
+  // )
 
   done();
 };

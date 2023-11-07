@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import fastify from 'fastify';
+import cors from '@fastify/cors';;
 
 import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
@@ -8,13 +9,18 @@ import {Database} from './database.js';
 import {AuthManager} from './auth.js';
 import {checkInRoutes} from './routes/checkIn.js';
 import {QRManager} from './qr.js';
-import { clubDayRoutes } from './routes/clubDay.js';
+import {clubDayRoutes} from './routes/clubDay.js';
 
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
 
   const app = fastify({
     logger: true,
+  });
+
+  app.register(cors, {
+    // TODO: set up cors
+    origin: true,
   });
 
   const db = new Database();

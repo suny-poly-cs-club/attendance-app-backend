@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "@fastify/cors": "^8.4.1",
     "dotenv": "^16.3.1",
     "fastify": "^4.23.0",
     "jsonwebtoken": "^9.0.2",

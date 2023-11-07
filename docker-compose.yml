@@ -6,20 +6,25 @@ services:
     env_file:
       - '.env'
     depends_on:
-      - 'migrate'
-      - 'postgres'
+      migrate:
+        condition: 'service_completed_successfully'
+
+      postgres:
+        condition: 'service_healthy'
 
   migrate:
     image: 'amacneil/dbmate'
     command: 'up'
     environment:
       DATABASE_URL: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable'
+      DBMATE_WAIT: 'true'
     env_file:
       - '.env'
     volumes:
       - './db:/db'
     depends_on:
-      - 'postgres'
+      postgres:
+        condition: 'service_healthy'
 
   postgres:
     image: 'postgres:16'
@@ -29,7 +34,12 @@ services:
     env_file:
       - '.env'
     volumes:
-      - 'postgres_data:/var/lib/postgresql'
+      - 'postgres_data:/var/lib/postgresql/data'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready', '${POSTGRES_DB}']
+      interval: '10s'
+      timeout: '5s'
+      retries: 5
 
 volumes:
   postgres_data:

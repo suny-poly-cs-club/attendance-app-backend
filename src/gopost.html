@@ -42,6 +42,11 @@
 				}
 
 				ajaxRequest.open("POST", document.querySelector(".url").value);
+				var headers1 = document.querySelector(".headers").value.split(",");
+				for(var i =0 ; i < headers1.length;i++){
+					var data = headers1[i].split(":");
+					ajaxRequest.setRequestHeader(data[0],data[1]);
+				}
 				ajaxRequest.setRequestHeader("Content-type", document.querySelector(".contentType").value);
 				ajaxRequest.send(document.querySelector(".data").value);
 			}
@@ -63,6 +68,10 @@
 					<tr>
 						<td>Content type:</td>
 						<td><input class="contentType inputBox"/></td>
+					</tr>
+					<tr>
+						<td>Headers:</td>
+						<td><input class="headers inputBox"/></td>
 					</tr>
 				</table>
 				

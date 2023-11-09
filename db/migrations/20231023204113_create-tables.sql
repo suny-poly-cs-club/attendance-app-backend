@@ -23,8 +23,8 @@ create table club_days (
 
 create table check_ins (
   id serial primary key,
-  user_id int not null references users(id),
-  club_day_id int not null references club_days(id),
+  user_id int not null references users(id) on delete cascade,
+  club_day_id int not null references club_days(id) on delete cascade,
   checked_in_at timestamptz not null default now(),
 
   -- any given user can only check into each club day once

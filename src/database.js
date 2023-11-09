@@ -17,20 +17,6 @@ const {Client} = pg;
  * @property {Date} endsAt
  */
 
-const mapUser = ({
-  id,
-  first_name: firstName,
-  last_name: lastName,
-  email,
-  is_admin: isAdmin
-}) => ({id, firstName, lastName, email, isAdmin});
-
-const mapClubDay = ({
-  id,
-  starts_at: startsAt,
-  ends_at: endsAt,
-}) => ({id, startsAt, endsAt});
-
 export class Database {
   client;
 
@@ -63,12 +49,21 @@ export class Database {
    */
   async getUser(id) {
     const res = await this.client.query(
-      'SELECT * FROM users WHERE id = $1::int',
+      `
+        SELECT
+          id,
+          first_name AS "firstName",
+          last_name AS "lastName",
+          email,
+          is_admin AS "isAdmin"
+        FROM users
+        WHERE id = $1::int
+      `,
       [id]
     );
 
     const user = res.rows[0];
-    return user ? mapUser(user) : null;
+    return user; //? mapUser(user) : null;
   }
 
   /**
@@ -78,12 +73,21 @@ export class Database {
    */
   async getUserByEmail(email) {
     const res = await this.client.query(
-      'SELECT * FROM users WHERE email = $1::text',
+      `
+        SELECT
+          id,
+          first_name AS "firstName",
+          last_name AS "lastName",
+          email,
+          is_admin AS "isAdmin"
+        FROM users
+        WHERE email = $1::text
+      `,
       [email]
     );
 
     const user = res.rows[0];
-    return user ? mapUser(user) : null;
+    return user;
   }
 
   /**
@@ -98,13 +102,18 @@ export class Database {
       `
         INSERT INTO users (first_name, last_name, email, password_hash)
         VALUES ($1::varchar(80), $2::varchar(80), $3::text, crypt($4::text, gen_salt('bf')))
-        RETURNING *
+        RETURNING
+          id,
+          first_name AS "firstName",
+          last_name AS "lastName",
+          email,
+          is_admin AS "isAdmin"
       `,
       [firstName, lastName, email, password]
     );
 
     const user = res.rows[0];
-    return user ? mapUser(user) : null;
+    return user; //? mapUser(user) : null;
   }
 
   /**
@@ -144,22 +153,34 @@ export class Database {
       `
         INSERT INTO club_days (starts_at, ends_at)
         VALUES ($1::TIMESTAMPTZ, $2::TIMESTAMPTZ)
-        RETURNING *
+        RETURNING
+          id,
+          starts_at AS "startsAt",
+          ends_at AS "endsAt"
       `,
       [startsAt, endsAt]
     );
 
     const cd = res.rows[0];
-    return cd ? mapClubDay(cd) : null;
+    return cd;
+    // return cd ? mapClubDay(cd) : null;
   }
 
   async getCurrentClubDay() {
     const res = await this.client.query(
-      'SELECT * FROM club_days WHERE NOW() BETWEEN starts_at AND ends_at'
+      `
+        SELECT
+          id,
+          starts_at AS "startsAt",
+          ends_at AS "endsAt"
+        FROM club_days
+        WHERE NOW() BETWEEN starts_at AND ends_at
+        LIMIT 1
+      `
     );
 
     const cd = res.rows[0];
-    return cd ? mapClubDay(cd) : null;
+    return cd; // ? mapClubDay(cd) : null;
   }
 
   /**
@@ -169,28 +190,56 @@ export class Database {
    */
   async getClubDay(id) {
     const res = await this.client.query(
-      'SELECT * FROM club_days WHERE id = $1::int',
+      `
+        SELECT
+          id,
+          starts_at AS "startsAt",
+          ends_at AS "endsAt"
+        FROM club_days
+        WHERE id = $1::int
+      `,
       [id]
     );
 
     const cd = res.rows[0];
-    return cd ? mapClubDay(cd) : null;
+    return cd;
   }
 
   async getAllClubDays() {
     const res = await this.client.query(
       `
-        select cd.*, coalesce(ci.attendees, 0)::int as attendees
-        from club_days cd
-        left join
-            (select club_day_id, count(*) as attendees
-            from check_ins
-            group by club_day_id) ci
-        on cd.id = ci.club_day_id;
+        SELECT
+          cd.id,
+          cd.starts_at AS "startsAt",
+          cd.ends_at AS "endsAt",
+          COALESCE(ci.attendees, 0)::int AS attendees
+        FROM club_days cd
+        LEFT JOIN
+            (SELECT club_day_id, COUNT(*) AS attendees
+            FROM check_ins
+            GROUP BY club_day_id) ci
+        ON cd.id = ci.club_day_id
+        ORDER BY cd.ends_at DESC;
       `
     );
 
     return res.rows;
+  }
+
+  async deleteClubDay(id) {
+    const res = await this.client.query(
+      `
+        DELETE FROM club_days
+        WHERE id = $1::int
+        RETURNING
+          id,
+          starts_at AS "startsAt",
+          ends_at AS "endsAt"
+      `,
+      [id]
+    );
+
+    return res.rows.length ? res.rows[0] : null;
   }
 
   ////////// Check Ins //////////
@@ -207,12 +256,15 @@ export class Database {
                (SELECT id
                 FROM club_days
                 WHERE NOW() BETWEEN starts_at AND ends_at))
-        RETURNING *
+        RETURNING
+          id,
+          user_id AS "userID",
+          club_day_id AS "clubDayID",
+          checked_in_at AS "checkedInAt"
       `,
       [userID]
     );
 
-    // TODO: to camel
     return res.rows[0];
   }
 
@@ -221,7 +273,11 @@ export class Database {
       `
         INSERT INTO check_ins (user_id, club_day_id)
         VALUES ($1::int, $2::int)
-        RETURNING *
+        RETURNING
+          id,
+          user_id AS "userID",
+          club_day_id AS "clubDayID",
+          checked_in_at AS "checkedInAt"
       `,
       [userID, clubDayID]
     );
@@ -231,7 +287,18 @@ export class Database {
 
   async getCheckedInUsers(clubDayID) {
     const res = await this.client.query(
-      'SELECT * FROM check_ins WHERE club_day_id = $1::int',
+      `
+        SELECT
+          u.id,
+          u.first_name AS "firstName",
+          u.last_name AS "lastName",
+          u.email,
+          u.is_admin AS "isAdmin"
+        FROM check_ins ci
+        INNER JOIN users u
+        ON u.id = ci.user_id
+        WHERE ci.club_day_id = $1::int
+      `,
       [clubDayID]
     );
 

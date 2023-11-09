@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import qr from 'qrcode';
 
 /**
  * @typedef QRJWTPayload
@@ -49,13 +48,4 @@ export class QRManager {
       return false;
     }
   }
-
-  // /**
-  //  * Creates a token and renders it to an SVG QR code for the given club day
-  //  * @param {string} token
-  //  * @returns {Promise<string>}
-  //  */
-  // async renderToSVG(token) {
-  //   return qr.toString(token, {type: 'svg'});
-  // }
 }

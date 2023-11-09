@@ -134,7 +134,7 @@ ClubDay[]
 
 #### Create Club Day
 **Request**
-```
+```http
 POST /club-days
 Authorization: Token
 Content-Type: application/json
@@ -143,7 +143,7 @@ Omit<ClubDay, 'id'>
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 
@@ -152,13 +152,13 @@ ClubDay
 
 #### Get Club Day
 **Request**
-```
+```http
 GET /club-days/<id>
 Authorization: Token
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 
@@ -167,13 +167,13 @@ ClubDay
 
 #### Get Club Day Attendees
 **Request**
-```
+```http
 GET /club-days/<id>/attendees
 Authorization: Token
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 
@@ -182,13 +182,13 @@ User[]
 
 #### Delete Club Day
 **Request**
-```
+```http
 DELETE /club-days/<id>
 Authorization: Token
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 
@@ -197,13 +197,13 @@ ClubDay
 
 #### Get QR Token
 **Request**
-```
+```http
 GET /club-days/<id>/qr-token
 Authorization: Token
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 
@@ -213,7 +213,7 @@ Content-Type: application/json
 ### Check In Routes
 #### Check In
 **Request**
-```
+```http
 POST /check-in
 Authorization: Token
 Content-Type: application/json
@@ -222,20 +222,20 @@ Content-Type: application/json
 ```
 
 **Response**
-```
+```http
 204 No Content
 ```
 
 ### User Routes
 #### Get Current User
 **Request**
-```
+```http
 GET /user
 Authorization: Token
 ```
 
 **Response**
-```
+```http
 200 OK
 Content-Type: application/json
 

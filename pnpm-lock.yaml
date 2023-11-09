@@ -23,6 +23,9 @@ dependencies:
   qrcode:
     specifier: ^1.5.3
     version: 1.5.3
+  valibot:
+    specifier: ^0.20.1
+    version: 0.20.1
 
 devDependencies:
   nodemon:
@@ -948,6 +951,10 @@ packages:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
       punycode: 2.3.0
+    dev: false
+
+  /valibot@0.20.1:
+    resolution: {integrity: sha512-7lToTLG5wtK76u32gq8dUK0bAw7bknTGbeNSKRJunAC2soGVnNrKngg+38Jjt6FOwH+MshUONHoFz+LgmjeYKQ==}
     dev: false
 
   /which-module@2.0.1:

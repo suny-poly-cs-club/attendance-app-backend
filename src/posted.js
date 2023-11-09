@@ -1,5 +1,31 @@
 import {PostgresErrorCode} from './database.js';
 
+import {object, string, email, minLength, maxLength, safeParse, flatten} from 'valibot';
+import { mapValibotToFormError } from './util/err.js';
+
+const RegisterSchema = object({
+  firstName: string([
+    maxLength(80, 'first name exceeds max length'),
+  ]),
+  lastName: string([
+    maxLength(80, 'last name exceeds max length'),
+  ]),
+  email: string([
+    email('not a valid email address'),
+    maxLength(254, 'email exceeds max length'),
+  ]),
+  password: string([
+    minLength(5, 'password must be at least 5 characters long'),
+  ]),
+});
+
+const LoginSchema = object({
+  email: string([
+    email('not a valid email address'),
+  ]),
+  password: string(),
+});
+
 export const postEndpoints = (app, options ,done) =>{
 	app.post("/sign-up",async (request,reply) =>{
     // email
@@ -9,13 +35,19 @@ export const postEndpoints = (app, options ,done) =>{
 
 		let database = request.ctx.db;
 
-		let email = request.body.email;
-		let firstName = request.body.firstName;
-		let lastName = request.body.lastName;
-		let password = request.body.password;
+    const result = safeParse(RegisterSchema, request.body);
+    if (!result.success) {
+      return reply.status(400).send(mapValibotToFormError(result.issues));
+    }
+
+		// let email = request.body.email;
+		// let firstName = request.body.firstName;
+		// let lastName = request.body.lastName;
+		// let password = request.body.password;
 
     try {
-      var user = await database.registerUser({firstName, lastName, email, password});
+      // var user = await database.registerUser({firstName, lastName, email, password});
+      var user = await database.registerUser(result.output);
     } catch (err) {
       if (err.code === PostgresErrorCode.UniqueViolation) {
         reply.status(409); // 409 Conflict -- resource already exists
@@ -42,13 +74,15 @@ export const postEndpoints = (app, options ,done) =>{
 	app.post("/login",async (request,reply) =>{
 		let database = request.ctx.db;
 
-		let email = request.body.email;
-		let password = request.body.password;
+    const result = safeParse(LoginSchema, request.body);
+    if (!result.success) {
+      return reply.status(400).send(mapValibotToFormError(result.issues));
+    }
 
-		let loginSuccess = await database.isUserPasswordValid({email, password});
+		// let loginSuccess = await database.isUserPasswordValid(result.output);
+    const user = await database.getUserFromLogin(result.output);
 
-		if(loginSuccess) {
-			let user = await database.getUserByEmail(email);
+		if(user) {
 			let token = request.ctx.authManager.createToken(user);
 
       reply.status(200);

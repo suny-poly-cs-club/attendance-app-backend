@@ -1,6 +1,18 @@
 import qr from 'qrcode';
+import {object, isoTimestamp, custom, string, safeParse} from 'valibot';
 
 import {authenticated} from '../auth.js';
+import {mapValibotToFormError} from '../util/err.js';
+
+const CreateClubDaySchema = object({
+  startsAt: string([
+    isoTimestamp(),
+  ]),
+  endsAt: string([
+    isoTimestamp(),
+    custom(input => new Date(input).getTime() > Date.now(), 'cannot end in the past')
+  ]),
+});
 
 const getClubDay = async (req, reply) => {
   const {id: _id} = req.params;
@@ -25,14 +37,12 @@ export const clubDayRoutes = (app, _options, done) => {
   app.addHook('onRequest', authenticated({requireAdmin: true}));
 
   app.post('/', async (req, reply) => {
-    const {startsAt: _startsAt, endsAt: _endsAt} = req.body;
-
-    // TODO: regex to make sure these are in the right format?
-
-    if (!(_startsAt && _endsAt)) {
-      reply.status(400);
-      return {message: '`startsAt` and `endsAt` are both required'};
+    const result = safeParse(CreateClubDaySchema, req.body);
+    if (!result.success) {
+      return reply.status(400).send(mapValibotToFormError(result.issues));
     }
+
+    const {startsAt: _startsAt, endsAt: _endsAt} = result.output;
 
     const startsAt = new Date(_startsAt);
     const endsAt = new Date(_endsAt);
@@ -46,7 +56,7 @@ export const clubDayRoutes = (app, _options, done) => {
     return cd;
   });
 
-  app.get('/', async (req, reply) => {
+  app.get('/', async (req, _reply) => {
     // TODO: paginate this maybe
     const clubDays = await req.ctx.db.getAllClubDays();
     return clubDays;

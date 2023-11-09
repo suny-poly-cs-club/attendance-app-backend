@@ -120,14 +120,19 @@ export class Database {
    * Returns whether or not an email + password combo are valid
    * @returns {Promise<boolean>}
    */
-  async isUserPasswordValid({email, password}) {
+  async getUserFromLogin({email, password}) {
     // to retrieve a user with email and password
     // `select * from users where email = '' and passwordHash = crypt('', passhash) LIMIT 1;`
     // return generated token
 
     const res = await this.client.query(
       `
-        SELECT id
+        SELECT
+          id,
+          first_name AS "firstName",
+          last_name AS "lastName",
+          email,
+          is_admin AS "isAdmin"
         FROM users
         WHERE
           email = $1::text
@@ -136,7 +141,7 @@ export class Database {
       [email, password]
     );
 
-    return res.rows?.length === 1;
+    return res.rows[0];
   }
 
   ////////// Club Day Methods //////////

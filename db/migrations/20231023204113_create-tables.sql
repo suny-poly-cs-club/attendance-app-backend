@@ -5,9 +5,9 @@ create table users (
   id serial primary key,
   first_name varchar(80) not null,
   last_name varchar(80) not null,
-  email text unique not null,
+  email varchar(255) unique not null,
   is_admin boolean not null default false,
-  password_hash text not null
+  password_hash char(60) not null
 );
 
 create table club_days (

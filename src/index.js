@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fastify from 'fastify';
-import cors from '@fastify/cors';;
+import _fastifyCors from '@fastify/cors';
 
 import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
@@ -18,7 +18,7 @@ const main = async () => {
     logger: true,
   });
 
-  app.register(cors, {
+  app.register(_fastifyCors, {
     // TODO: set up cors
     origin: true,
   });

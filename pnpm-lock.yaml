@@ -8,6 +8,9 @@ dependencies:
   '@fastify/cors':
     specifier: ^8.4.1
     version: 8.4.1
+  dbmate:
+    specifier: ^2.12.0
+    version: 2.12.0
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
@@ -33,6 +36,62 @@ devDependencies:
     version: 3.0.1
 
 packages:
+
+  /@dbmate/darwin-arm64@2.12.0:
+    resolution: {integrity: sha512-gmvq0nycXdmeP98hqDmq5uORNvzx22+PCuolHUvAdkDhMNqEspOt7xoepJTLnnGaeaQ83uxcANUcAA4S44uviA==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/darwin-x64@2.12.0:
+    resolution: {integrity: sha512-KwETT+910dQ/gg4q6y8H41RupNWG9en8lnx5uZ7upwbEPN39/cQ7zWBRXBR08a5fVRaIDQiSTyQpVrJ3b6b43Q==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/linux-arm64@2.12.0:
+    resolution: {integrity: sha512-j9MRpwGOsyv4ZVnW8zK4jM6pm+wGoTx0Gym8y6fBXeTKfQr8BGHxHcnId3z8K+1sw4UHrI5Z2Oaj3YMwL+GbwQ==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/linux-arm@2.12.0:
+    resolution: {integrity: sha512-f4wL2lkoOh+qGtisaVw7zYDSDJ+g0D8wMsZeg07f4DBkrBAogJ87CSr2bvAKg+IioaNpGIUYSwYT3O5q495RuQ==}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/linux-ia32@2.12.0:
+    resolution: {integrity: sha512-XEDxYd7YtSP45STSrO8ldq++pLnNCMd9/O7fqXiGya/2J4mJwlIShRfRk1UNsiK3wT0G622tcOzPSaCcaGlcSA==}
+    cpu: [ia32]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/linux-x64@2.12.0:
+    resolution: {integrity: sha512-1dSxN8Z+e1u220AwKBQ9B4YSORyJa2lgNN2MnZJQZSJJItPZSPfD/VXCSjx3A1AnRxYi0uKX89RNPXhMP3V2Hg==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@dbmate/win32-x64@2.12.0:
+    resolution: {integrity: sha512-wirLct1LIFjAyuQbm2bj72oFOwr4ds6+dZ51rsV4Xz016dOBQorBKcRQZb4HfjH2CUxvjXufxxgzqdLk72TTMw==}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
 
   /@fastify/ajv-compiler@3.5.0:
     resolution: {integrity: sha512-ebbEtlI7dxXF5ziNdr05mOY8NnDiPB1XvAlLHctRt/Rc+C3LCOVW5imUVX+mhvUhnNzmPBHewUkOFgGlCxgdAA==}
@@ -226,6 +285,19 @@ packages:
   /cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
+    dev: false
+
+  /dbmate@2.12.0:
+    resolution: {integrity: sha512-tfbVxBKb/0Ch+dCH6QV2VmfZZggIOO5E6AgbCuYhLkkP/Z5vZ17P6dkvdOfxmSk6USNvX0eRmUalVe9fO5SdRA==}
+    hasBin: true
+    optionalDependencies:
+      '@dbmate/darwin-arm64': 2.12.0
+      '@dbmate/darwin-x64': 2.12.0
+      '@dbmate/linux-arm': 2.12.0
+      '@dbmate/linux-arm64': 2.12.0
+      '@dbmate/linux-ia32': 2.12.0
+      '@dbmate/linux-x64': 2.12.0
+      '@dbmate/win32-x64': 2.12.0
     dev: false
 
   /debug@3.2.7(supports-color@5.5.0):

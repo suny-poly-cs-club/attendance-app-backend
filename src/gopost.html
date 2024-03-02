@@ -49,7 +49,46 @@
 				}
 				ajaxRequest.setRequestHeader("Content-type", document.querySelector(".contentType").value);
 				ajaxRequest.send(document.querySelector(".data").value);
-			}
+			};
+			function getit(){
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.onreadystatechange = function(){
+					if(ajaxRequest.readyState == 4){
+						document.querySelector(".responce").innerHTML=ajaxRequest.responseText;
+						document.querySelector(".statusCode").innerHTML="status: "+ajaxRequest.status;
+					}
+					
+				}
+
+				ajaxRequest.open("GET", document.querySelector(".url").value);
+				var headers1 = document.querySelector(".headers").value.split(",");
+				for(var i =0 ; i < headers1.length;i++){
+					var data = headers1[i].split(":");
+					ajaxRequest.setRequestHeader(data[0],data[1]);
+				}
+				ajaxRequest.setRequestHeader("Content-type", document.querySelector(".contentType").value);
+				ajaxRequest.send();
+			};
+			function deleteit(){
+				var ajaxRequest = new XMLHttpRequest();
+				ajaxRequest.onreadystatechange = function(){
+					if(ajaxRequest.readyState == 4){
+						document.querySelector(".responce").innerHTML=ajaxRequest.responseText;
+						document.querySelector(".statusCode").innerHTML="status: "+ajaxRequest.status;
+					}
+					
+				}
+
+				ajaxRequest.open("DELETE", document.querySelector(".url").value);
+				var headers1 = document.querySelector(".headers").value.split(",");
+				for(var i =0 ; i < headers1.length;i++){
+					var data = headers1[i].split(":");
+					ajaxRequest.setRequestHeader(data[0],data[1]);
+				}
+				ajaxRequest.setRequestHeader("Content-type", document.querySelector(".contentType").value);
+				ajaxRequest.send();
+			};
+			
 		</script>
 	</head>
 	
@@ -58,7 +97,7 @@
 			<div class="inputs">
 				<table class="inputTable">
 					<tr>
-						<td>URL to post to:</td>
+						<td>URL:</td>
 						<td><input class="url inputBox"/></td>
 					</tr>
 					<tr>
@@ -76,6 +115,8 @@
 				</table>
 				
 				<button onclick="postit()" style="padding: .5%;width: 70%;background: red;font-weight: bold;"> POST </button>
+				<button onclick="getit()" style="padding: .5%;width: 70%;background: red;font-weight: bold;"> GET </button>
+				<button onclick="deleteit()" style="padding: .5%;width: 70%;background: red;font-weight: bold;"> DELETE </button>
 			</div>
 			<div class="status">
 				<br>

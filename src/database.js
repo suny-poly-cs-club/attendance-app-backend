@@ -380,6 +380,96 @@ export class Database {
       [id]
     );
   }
+  
+  ////////// Club admin //////////
+  
+  /**sets wether a user is an admin for a given club
+	@param {number} userId the id of the user
+	@param {number} clubId the id of the club
+	@param {boolean} isAdmin wether they are now an admin or not
+	@returns the passed in data from the database
+  */
+  async setClubAdmin(userId, clubId, isAdmin){
+	  //check to see if the user is allready in the table for the given club
+	  const exsistsRequest = this.client.query(
+		`
+			SELECT count(id) FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
+		`,
+		[userId,clubId]
+	  );
+	  
+	  let res = null;
+	  if(exsistsRequest.rows[0].count==1){//if so update the exsisting row wiht the new value
+		res = this.client.query(
+			`
+				UPDATE club_admins 
+				SET is_admin=$1::boolean 
+				WHERE user_id=$2::int 
+					AND club_id=$3::int
+				RETURNING
+					user_id AS "userId",
+					club_id AS "clubId",
+					is_admin AS "isAdmin";
+			`,
+			[isAdmin,userId,clubId]
+		);
+	  }else{//else add a new entry to the table
+		res = this.client.query(
+			`
+				INSERT INTO club_admins(user_id,club_id,is_admin)
+				VALUES($1::int, $2::int, $3::boolean)
+				RETURNING
+					user_id AS "userId",
+					club_id AS "clubId",
+					is_admin AS "isAdmin";
+			`,
+			[userId,clubId,isAdmin]
+		);
+	  }
+	  return res.row[0];
+  }
+  
+  /**gets all the users who are admins for a given club
+   @param (number) clubId the id of the club
+   @returns an array of users
+  */
+  async getClubAdmins(clubId){
+	  const res = await this.client.query(
+      `
+        SELECT
+          u.id,
+          u.first_name AS "firstName",
+          u.last_name AS "lastName",
+          u.email,
+          u.is_admin AS "isAdmin"
+        FROM club_admins ca
+        INNER JOIN users u
+        ON u.id = ca.user_id
+        WHERE ca.club_id = $1::int
+			AND ca.is_admin = true
+      `,
+      [clubId]
+    );
+
+    return res.rows;
+  }
+  
+  /**
+	@param {number} userID the ID of the user
+	@param {number} clubID the id of the club
+  */
+  async isUserClubAdmin(userId,clubId){
+	 const res = this.client.query(
+		`
+			SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
+		`,
+		[userId,clubId]
+	  );
+	  
+	  //if nothing was returned they are not an admin, else return what was found in the database
+	  return res.rows.length ? res.rows[0].isAdmin : false;
+  }
+  
 }
 
   

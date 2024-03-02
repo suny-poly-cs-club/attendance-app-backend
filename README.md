@@ -49,6 +49,11 @@ $ PORT=8000 node src/index.js # runs the app on port 8000
 > - starts\_at MUST COME BEFORE ends\_at
 > - ends\_at MUST come AFTER the current time
 > - the range from starts\_at to ends\_at MUST NOT OVERLP with another range
+>
+> **requests**
+> - Anywhere "Authorization" is present it refers to the http header of the same name
+> - Omit<A, '',...> submit the object of the corresponding type but leave out specified information
+>
 
 ## Typedefs
 ```ts
@@ -68,6 +73,7 @@ type ClubDay = {
   id: number;
   startsAt: ISOTimestamp;
   endsAt: ISOTimestamp;
+  clubId: number;
 }
 
 type CheckIn = {
@@ -85,7 +91,12 @@ type CheckIn = {
 POST /sign-up
 Content-Type: application/json
 
-Omit<User, 'isAdmin'>
+{
+ fisetName: string.
+ lastName: string,
+ email: string,
+ password: string
+}
 ```
 
 **Response**
@@ -115,13 +126,14 @@ Content-Type: application/json
 
 ### Club Day Routes
 > [!NOTE]
-> All of these routes require authentication, and the user to be an admin (`isAdmin=true`).
+> All of these routes require authentication, and the user to be a service admin (`isAdmin=true`) or and admin of the club.
 
-#### Get All Club Days
+#### Get All Club Days For a Club
 **Request**
 ```http
 GET /club-days
 Authorization: Token
+clubId: number
 ```
 
 **Response**

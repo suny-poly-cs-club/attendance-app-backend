@@ -1,7 +1,7 @@
 import qr from 'qrcode';
 import {object, isoTimestamp, custom, string, safeParse} from 'valibot';
 
-import {authenticated} from '../auth.js';
+import {authenticated,authenticatedClubDay} from '../auth.js';
 import {mapValibotToFormError} from '../util/err.js';
 
 const CreateClubDaySchema = object({
@@ -34,7 +34,7 @@ const getClubDay = async (req, reply) => {
 };
 
 export const clubDayRoutes = (app, _options, done) => {
-  app.addHook('onRequest', authenticated({requireAdmin: true}));
+  app.addHook('onRequest', authenticatedClubDay());
 
   app.post('/', async (req, reply) => {
     const result = safeParse(CreateClubDaySchema, req.body);
@@ -58,7 +58,13 @@ export const clubDayRoutes = (app, _options, done) => {
 
   app.get('/', async (req, _reply) => {
     // TODO: paginate this maybe
-    const clubDays = await req.ctx.db.getAllClubDays();
+	let clubId = req.headers.clubId;
+	if(!clubId || isNaN(clubId)){
+		_reply.status(400);
+		return {message: 'club day header not found'};
+	}
+	
+    const clubDays = await req.ctx.db.getAllClubDaysByClub();
     return clubDays;
   });
 

@@ -15,6 +15,7 @@ const {Client} = pg;
  * @property {number} id
  * @property {Date} startsAt
  * @property {Date} endsAt
+ * @property {number} clubId
  */
 
 export class Database {
@@ -270,6 +271,30 @@ export class Database {
 
     return res.rows.length ? res.rows[0] : null;
   }
+  
+  async getAllClubDaysByClub(clubId) {
+    const res = await this.client.query(
+      `
+        SELECT
+          cd.id,
+          cd.starts_at AS "startsAt",
+          cd.ends_at AS "endsAt",
+          COALESCE(ci.attendees, 0)::int AS attendees,
+		  cd.club_id AS "clubId"
+        FROM club_days cd
+        LEFT JOIN
+            (SELECT club_day_id, COUNT(*) AS attendees
+            FROM check_ins
+            GROUP BY club_day_id) ci
+        ON cd.id = ci.club_day_id
+		WHERE club_id = $1::int
+        ORDER BY cd.ends_at DESC;
+      `,
+	  [clubId]//NOTE the WHERE part of the query has not been tested
+    );
+
+    return res.rows;
+  }
 
   ////////// Check Ins //////////
 
@@ -452,6 +477,29 @@ export class Database {
     );
 
     return res.rows;
+  }
+  
+  /**get all the clubs a user is an admin of
+	@param {number} userId the ID of the user
+	@returns clubs the user is an admin of
+  */
+  async getClubsAdminOf(userId){
+	//SELECT name,id FROM clubs WHERE id=(SELECT club_id FROM club_admins WHERE user_id=6 AND is_admin=true)
+	const res = this.client.query(
+		`
+			SELECT 
+				name,
+				id 
+			FROM clubs 
+			WHERE id=(
+				SELECT club_id 
+				FROM club_admins 
+				WHERE user_id=$1::int 
+					AND is_admin=true
+			)
+		`,[userId]
+	);
+	return res.rows;
   }
   
   /**

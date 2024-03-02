@@ -71,3 +71,41 @@ export const authenticated = ({requireAdmin = false} = {}) =>
     req.user = authdUser;
   };
 
+export const authenticatedClubDay = () => 
+	async (req, reply) => {
+		//get the user
+		const authdUser = await req.ctx.getAuthenticatedUser();
+		// the user does not exist
+		if (!authdUser) {
+			reply.status(401).send();
+			return;
+		}
+		
+		//if they are a service admin 
+		if(authdUser.isAdmin){
+			//the succeed emediattly
+			req.user = authdUser;
+			return;
+		}
+		
+		//get the thing
+		let clubId = req.body.clubId
+		//check its a number
+		if(!clubId || isNaN(clubId)){
+			//if not check in the headers
+			clubId = req.headers.clubId;
+			
+			if(!clubId || isNaN(clubId)){
+				reply.status(404).send();
+				return;
+			}
+		}
+		
+		if(!req.ctx.db.isUserClubAdmin(authdUser.id,clubId)){
+			reply.status(403).send();
+			return;
+		}
+		req.user = authdUser;
+	};
+
+

@@ -255,6 +255,130 @@ Content-Type: application/json
 User
 ```
 
+### Club Service Admin Routes
+> [!NOTE]
+> All of these routes require authentication, and the user to be a service admin (`isAdmin=true`)
+
+#### Get All Clubs
+**Request**
+```http
+GET /clubsa
+Authorization: Token
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+[{id:number , name: string}]
+```
+
+#### Create a New Club
+**Request**
+```http
+POST /clubsa
+Authorization: Token
+Content-Type: application/json
+
+{name: string}
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{id: number, name: string}
+```
+
+#### Delete a club
+**Request**
+```http
+DELETE /clubsa/<id>
+Authorization: Token
+
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{id: number, name: string}
+```
+
+
+### Club Admin Routes
+> [!NOTE]
+> All of these routes require authentication, and the user to be a service admin (`isAdmin=true`) or and admin of the club.
+
+### Get Clubs the User is an Admin of
+**Request**
+```http
+GET /club
+Authorization: Token
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+[{id:number , name: string}]
+```
+
+### Make a User an Admin of a Club
+**Request**
+```http
+POST /club/addadmin
+Authorization: Token
+Content-Type: application/json
+
+{userID: number, clubId: number}
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{userId: number, clubId: number, isAdmin: boolean}
+```
+
+### Make a User no Longer an Admin of a Club
+**Request**
+```http
+POST /club/removeadmin
+Authorization: Token
+Content-Type: application/json
+
+{userID: number, clubId: number}
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{userId: number, clubId: number, isAdmin: boolean}
+```
+
+### Get All The Admins of A Given Club
+**Request**
+```http
+GET /club/admins/<id>
+Authorization: Token
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+[User]
+```
+
 ## Error Codes
 #### 200 OK
 A 200 error is the success code. This means the request completed successfully.

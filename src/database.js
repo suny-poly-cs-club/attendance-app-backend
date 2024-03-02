@@ -314,8 +314,7 @@ export class Database {
 
     return res.rows;
   }
-}
-
+  
   ////////// Clubs //////////
   
   /**creates a new club with the given name
@@ -361,6 +360,9 @@ export class Database {
       [id]
     );
   }
+}
+
+  
   
 
 export const PostgresErrorCode = {

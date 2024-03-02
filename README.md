@@ -255,6 +255,75 @@ Content-Type: application/json
 User
 ```
 
+#### Get All User
+**Request**
+```http
+GET /user/all
+Authorization: Token (requires isAdmin=true)
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+[User]
+```
+
+#### Search Users
+**Request**
+```http
+POST /user/search
+Authorization: Token 
+Content-Type: application/json
+
+{querey: string} (space seperated list of words to search)
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+[User]
+```
+
+#### Add New Service Admins
+**Request**
+```http
+POST /user/addadmin
+Authorization: Token  (requires isAdmin=true)
+Content-Type: application/json
+
+{userId: number}
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+User
+```
+
+#### Remove Service Admins
+**Request**
+```http
+POST /user/removeadmin
+Authorization: Token  (requires isAdmin=true)
+Content-Type: application/json
+
+{userId: number}
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+User
+```
+
 ### Club Service Admin Routes
 > [!NOTE]
 > All of these routes require authentication, and the user to be a service admin (`isAdmin=true`)

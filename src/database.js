@@ -531,6 +531,69 @@ export class Database {
 	  return res.rows.length ? res.rows[0].isAdmin : false;
   }
   
+  
+  ////////// User //////////
+  
+  /** get all of the users in the database
+	@returns array containing all users
+  */
+  async getAllUsers(){
+	 const res = await this.client.query(
+		`
+			SELECT 
+				id,
+				first_name AS "firstName",
+				last_name AS "lastName",
+				email,
+				is_admin AS "isAdmin"
+			FROM users
+		`
+	 );
+	 return res.rows;
+  }
+  
+  async setUserAdmin(userId, isAdmin){
+	const res = await this.client.query(
+		`
+			UPDATE users 
+			SET is_admin=$1::boolean 
+			WHERE id=$2::int 
+			RETURNING
+				id,
+				first_name AS "firstName",
+				last_name AS "lastName",
+				email,
+				is_admin AS "isAdmin"
+		`,
+		[isAdmin,userId]
+	);
+	
+	return res.rows[0];
+  }
+  //this does not work for some reason. I'm just gogin to do it in javascript. mutch more secure anyway
+  ///** search all users for ones who's first or last name matches the inputs
+	//@param {string array} words the words to use in the search
+	//@returns {User array} all the users that match the search words
+  //*/
+  //async searchUsers(words){
+	//  const escapedWords = words.map((word) => this.client.escapeLiteral(word));
+	//  //NEEDS SQL INJECTTION PROTECTION
+	//  //for some reason the querey does not work with this escape method
+	//  const res = await this.client.query(
+	//	`
+	//		SELECT 
+	//			id,
+	//			first_name AS "firstName",
+	//			last_name AS "lastName",
+	//			email,
+	//			is_admin AS "isAdmin"
+	//		FROM users
+	//		WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%';
+	//	`,[words]
+	//  );
+	//  
+	//  return res.rows;
+  //}
 }
 
   

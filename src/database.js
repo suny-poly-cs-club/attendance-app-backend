@@ -146,7 +146,7 @@ export class Database {
 
   ////////// Club Day Methods //////////
 
-  async createClubDay({startsAt, endsAt}) {
+  async createClubDay({startsAt, endsAt, clubId}) {
     startsAt = new Date(startsAt);
     endsAt = new Date(endsAt);
 
@@ -156,14 +156,15 @@ export class Database {
 
     const res = await this.client.query(
       `
-        INSERT INTO club_days (starts_at, ends_at)
-        VALUES ($1::TIMESTAMPTZ, $2::TIMESTAMPTZ)
+        INSERT INTO club_days (starts_at, ends_at, club_id)
+        VALUES ($1::TIMESTAMPTZ, $2::TIMESTAMPTZ, $3::int)
         RETURNING
           id,
           starts_at AS "startsAt",
-          ends_at AS "endsAt"
+          ends_at AS "endsAt",
+		  club_id AS "clubId"
       `,
-      [startsAt, endsAt]
+      [startsAt, endsAt, clubId]
     );
 
     const cd = res.rows[0];
@@ -171,6 +172,7 @@ export class Database {
     // return cd ? mapClubDay(cd) : null;
   }
 
+//this function is currently not used
   async getCurrentClubDay() {
     const res = await this.client.query(
       `
@@ -199,7 +201,8 @@ export class Database {
         SELECT
           id,
           starts_at AS "startsAt",
-          ends_at AS "endsAt"
+          ends_at AS "endsAt",
+		  club_id AS "clubId"
         FROM club_days
         WHERE id = $1::int
       `,
@@ -217,7 +220,8 @@ export class Database {
           cd.id,
           cd.starts_at AS "startsAt",
           cd.ends_at AS "endsAt",
-          COALESCE(ci.attendees, 0)::int AS attendees
+          COALESCE(ci.attendees, 0)::int AS attendees,
+		  cd.club_id AS "clubId"
         FROM club_days cd
         LEFT JOIN
             (SELECT club_day_id, COUNT(*) AS attendees
@@ -230,7 +234,7 @@ export class Database {
 
     return res.rows;
   }
-
+  
   async deleteClubDay(id) {
     const res = await this.client.query(
       `
@@ -249,6 +253,7 @@ export class Database {
 
   ////////// Check Ins //////////
 
+//not currently used. rebly should remove for new club system
   /**
    * Checks in to the currently ongoing club day
    * @param {number} userID
@@ -256,7 +261,7 @@ export class Database {
   async checkInCurrent(userID) {
     const res = await this.client.query(
       `
-        INSERT INTO check_ins (user_id, club_day_id)
+        INSERT INTO check_ins (user_id, club_day_id) 
         VALUES ($1::int,
                (SELECT id
                 FROM club_days
@@ -310,6 +315,53 @@ export class Database {
     return res.rows;
   }
 }
+
+  ////////// Clubs //////////
+  
+  /**creates a new club with the given name
+  @param {string} name the name of the club 
+  @returns object with an id element, the ID of the new club
+  */
+  async createClub(name){
+	  const res = await this.client.query(
+      `
+        INSERT INTO clubs (name)
+        VALUES ($1::varchar(80))
+        RETURNING
+          id
+      `,
+      [name]
+    );
+
+    const cd = res.rows[0];
+    return cd;
+  }
+  
+  async deleteClub(id){
+	const res = await this.client.query(
+      `
+        DELETE FROM clubs
+        WHERE id = $1::int
+        RETURNING
+          id,
+          name
+      `,
+      [id]
+    );
+
+    return res.rows.length ? res.rows[0] : null;
+  }
+  
+  async getClub(id){
+	const res = await this.client.query(
+      `
+        SELECT * FROM clubs
+        WHERE id = $1::int
+      `,
+      [id]
+    );
+  }
+  
 
 export const PostgresErrorCode = {
   UniqueViolation: '23505',

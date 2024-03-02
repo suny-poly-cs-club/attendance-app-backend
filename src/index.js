@@ -10,6 +10,7 @@ import {AuthManager} from './auth.js';
 import {checkInRoutes} from './routes/checkIn.js';
 import {QRManager} from './qr.js';
 import {clubDayRoutes} from './routes/clubDay.js';
+import {clubEndpointsGE,clubEndpointsSA} from './routes/club.js';
 
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
@@ -43,6 +44,8 @@ const main = async () => {
   app.register(postEndpoints, {prefix: '/'});
   app.register(checkInRoutes, {prefix: '/check-in'});
   app.register(clubDayRoutes, {prefix: '/club-days'});
+  app.register(clubEndpointsGE, {prefix: '/club'});
+  app.register(clubEndpointsSA, {prefix: '/clubsa'});
 
   try {
     await app.listen({

@@ -372,7 +372,8 @@ export class Database {
         INSERT INTO clubs (name)
         VALUES ($1::varchar(80))
         RETURNING
-          id
+          id,
+		  name
       `,
       [name]
     );
@@ -404,6 +405,16 @@ export class Database {
       `,
       [id]
     );
+	return res.rows[0];
+  }
+  
+  async getAllClubs(){
+	  const res = await this.client.query(
+		`
+			SELECT * FROM clubs;
+		`
+	  );
+	  return res.rows;
   }
   
   ////////// Club admin //////////

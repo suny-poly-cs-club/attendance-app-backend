@@ -51,20 +51,26 @@ export const clubDayRoutes = (app, _options, done) => {
       reply.status(400);
       return {message: '`startsAt` must come before `endsAt`'};
     }
+	
+	const clubId = req.body.clubId;
+	if(!clubId || isNaN(clubId)){
+		reply.status(400);
+		return {message: 'club ID not found in request body'};
+	}
 
-    const cd = await req.ctx.db.createClubDay({startsAt, endsAt});
+    const cd = await req.ctx.db.createClubDay({startsAt, endsAt,clubId});
     return cd;
   });
 
   app.get('/', async (req, _reply) => {
     // TODO: paginate this maybe
-	let clubId = req.headers.clubId;
+	let clubId = Number(req.query.clubId);
 	if(!clubId || isNaN(clubId)){
 		_reply.status(400);
-		return {message: 'club day header not found'};
+		return {message: 'club ID querey not found'};
 	}
 	
-    const clubDays = await req.ctx.db.getAllClubDaysByClub();
+    const clubDays = await req.ctx.db.getAllClubDaysByClub(clubId);
     return clubDays;
   });
 

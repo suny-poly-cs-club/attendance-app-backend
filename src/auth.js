@@ -93,7 +93,7 @@ export const authenticatedClubDay = () =>
 		//check its a number
 		if(!clubId || isNaN(clubId)){
 			//if not check in the headers
-			clubId = req.headers.clubId;
+			clubId = Number(req.query.clubId);
 			
 			if(!clubId || isNaN(clubId)){
 				reply.status(404).send();

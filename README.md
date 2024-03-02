@@ -131,9 +131,10 @@ Content-Type: application/json
 #### Get All Club Days For a Club
 **Request**
 ```http
-GET /club-days
+GET /club-days?clibId=<clubId>
 Authorization: Token
-clubId: number
+
+parameter
 ```
 
 **Response**
@@ -165,7 +166,7 @@ ClubDay
 #### Get Club Day
 **Request**
 ```http
-GET /club-days/<id>
+GET /club-days/<id>?clibId=<clubId>
 Authorization: Token
 ```
 
@@ -180,7 +181,7 @@ ClubDay
 #### Get Club Day Attendees
 **Request**
 ```http
-GET /club-days/<id>/attendees
+GET /club-days/<id>/attendees?clibId=<clubId>
 Authorization: Token
 ```
 
@@ -195,7 +196,7 @@ User[]
 #### Delete Club Day
 **Request**
 ```http
-DELETE /club-days/<id>
+DELETE /club-days/<id>?clibId=<clubId>
 Authorization: Token
 ```
 
@@ -210,7 +211,7 @@ ClubDay
 #### Get QR Token
 **Request**
 ```http
-GET /club-days/<id>/qr-token
+GET /club-days/<id>/qr-token?clibId=<clubId>
 Authorization: Token
 ```
 

@@ -1,6 +1,6 @@
 import {PostgresErrorCode} from '../database.js';
 
-import {object, string, email, minLength, maxLength, safeParse, flatten} from 'valibot';
+import {object, string, email, minLength, maxLength, safeParse, flatten,number} from 'valibot';
 import { mapValibotToFormError } from '../util/err.js';
 import {authenticated,authenticatedClubDay} from '../auth.js';
 
@@ -9,6 +9,12 @@ const CreateClubSchema = object({
   name: string([
     maxLength(80, 'name exceeds max length'),
   ]),
+
+});
+
+const ClubAdminSchema = object({
+  userId: number(),
+  clubId: number(),
 
 });
 
@@ -71,6 +77,74 @@ export const clubEndpointsSA = (app, options ,done) =>{
 //general club endpoints
 export const clubEndpointsGE = (app, options ,done) =>{
 	app.addHook('onRequest', authenticated());
+	
+	//get all clubs that this user can admininstrae
+	app.get("/", async (request,reply) =>{
+		reply.type("application/json");
+		
+		//if the user is a aervice admin
+		if(request.user.isAdmin){
+			//send them all the clubs
+			const cd = await request.ctx.db.getAllClubs();
+			return cd;
+		}
+		const cd = await request.ctx.db.getClubsAdminOf(request.user.id);
+		return cd;
+	});
+	
+	app.post("/addadmin", async (request,reply) =>{
+		reply.type("application/json");
+		//decode post data
+		const result = safeParse(ClubAdminSchema, request.body);
+		if (!result.success) {
+			return reply.status(400).send(mapValibotToFormError(result.issues));
+		}
+		
+		//if the user is a service admin or a club admin 
+		if(request.user.isAdmin || await request.ctx.db.isUserClubAdmin(request.user.id,result.output.clubId)){
+			//set the requested person as club admin
+			const cd = request.ctx.db.setClubAdmin(result.output.userId,result.output.clubId,true);
+			return cd;
+		}else{
+			//if they are not admin then send not authorized
+			reply.status(403)
+			return '{"status":403}';
+		}
+	});
+	
+	app.post("/removeadmin", async (request,reply) =>{
+		reply.type("application/json");
+		//decode post data
+		const result = safeParse(ClubAdminSchema, request.body);
+		if (!result.success) {
+			return reply.status(400).send(mapValibotToFormError(result.issues));
+		}
+		
+		//if the user is a service admin or a club admin 
+		if(request.user.isAdmin || await request.ctx.db.isUserClubAdmin(request.user.id,result.output.clubId)){
+			//set the requested person as club admin
+			const cd = request.ctx.db.setClubAdmin(result.output.userId,result.output.clubId,false);
+			return cd;
+		}else{
+			//if they are not admin then send not authorized
+			reply.status(403)
+			return '{"status":403}';
+		}
+	});
+	
+	app.get("/admins/:id", async (request, reply) => {
+		reply.type("application/json");
+		const {id: clubId} = request.params;
+		//if the user is a service admin or a club admin 
+		if(request.user.isAdmin || await request.ctx.db.isUserClubAdmin(request.user.id,clubId)){
+			const cd = await request.ctx.db.getClubAdmins(clubId);
+			return cd;
+		}else{
+			//if they are not admin then send not authorized
+			reply.status(403)
+			return '{"status":403}';
+		}
+	});
 	
 	done();
 }

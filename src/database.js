@@ -427,7 +427,7 @@ export class Database {
   */
   async setClubAdmin(userId, clubId, isAdmin){
 	  //check to see if the user is allready in the table for the given club
-	  const exsistsRequest = this.client.query(
+	  const exsistsRequest = await this.client.query(
 		`
 			SELECT count(id) FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
 		`,
@@ -435,8 +435,8 @@ export class Database {
 	  );
 	  
 	  let res = null;
-	  if(exsistsRequest.rows[0].count==1){//if so update the exsisting row wiht the new value
-		res = this.client.query(
+	  if(exsistsRequest.rows && exsistsRequest.rows[0].count==1){//if so update the exsisting row wiht the new value
+		res = await this.client.query(
 			`
 				UPDATE club_admins 
 				SET is_admin=$1::boolean 
@@ -450,7 +450,7 @@ export class Database {
 			[isAdmin,userId,clubId]
 		);
 	  }else{//else add a new entry to the table
-		res = this.client.query(
+		res = await this.client.query(
 			`
 				INSERT INTO club_admins(user_id,club_id,is_admin)
 				VALUES($1::int, $2::int, $3::boolean)
@@ -462,7 +462,7 @@ export class Database {
 			[userId,clubId,isAdmin]
 		);
 	  }
-	  return res.row[0];
+	  return res.rows[0];
   }
   
   /**gets all the users who are admins for a given club
@@ -496,7 +496,7 @@ export class Database {
   */
   async getClubsAdminOf(userId){
 	//SELECT name,id FROM clubs WHERE id=(SELECT club_id FROM club_admins WHERE user_id=6 AND is_admin=true)
-	const res = this.client.query(
+	const res = await this.client.query(
 		`
 			SELECT 
 				name,
@@ -518,7 +518,7 @@ export class Database {
 	@param {number} clubID the id of the club
   */
   async isUserClubAdmin(userId,clubId){
-	 const res = this.client.query(
+	 const res = await this.client.query(
 		`
 			SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
 		`,
@@ -526,6 +526,8 @@ export class Database {
 	  );
 	  
 	  //if nothing was returned they are not an admin, else return what was found in the database
+	  if(!res.rows)
+		  return false
 	  return res.rows.length ? res.rows[0].isAdmin : false;
   }
   

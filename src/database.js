@@ -113,6 +113,26 @@ export class Database {
     );
 
     const user = res.rows[0];
+	
+	console.log("REGISTERD USER");
+	
+	const firstChek = await this.client.query(
+		`
+			SELECT count(id) FROM users 
+		`
+	);
+	const num = firstChek.rows[0].count;
+	if(num == 1){//if this is the first user
+		console.log("FIRST USER MAKING ADMIN");
+		//make them an admin
+		const makeAdmin = this.client.query(
+			`UPDATE users SET is_admin=true WHERE id=$1::int`,[user.id]
+		);
+		user.isAdmin=true;
+	}else{
+		console.log("USER NOT FIRST "+num);
+	}
+	
     return user; //? mapUser(user) : null;
   }
 

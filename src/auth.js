@@ -89,7 +89,7 @@ export const authenticatedClubDay = () =>
 		}
 		
 		//get the thing
-		let clubId = req.body.clubId
+		let clubId = (req.body) ? req.body.clubId : undefined;
 		//check its a number
 		if(!clubId || isNaN(clubId)){
 			//if not check in the headers

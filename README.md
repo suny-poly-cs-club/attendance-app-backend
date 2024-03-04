@@ -404,7 +404,7 @@ POST /club/addadmin
 Authorization: Token
 Content-Type: application/json
 
-{userID: number, clubId: number}
+{userId: number, clubId: number}
 ```
 
 **Response**
@@ -422,7 +422,7 @@ POST /club/removeadmin
 Authorization: Token
 Content-Type: application/json
 
-{userID: number, clubId: number}
+{userId: number, clubId: number}
 ```
 
 **Response**

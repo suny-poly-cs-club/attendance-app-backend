@@ -353,6 +353,7 @@ export class Database {
         INNER JOIN users u
         ON u.id = ci.user_id
         WHERE ci.club_day_id = $1::int
+		ORDER BY u.last_name ASC
       `,
       [clubDayID]
     );
@@ -483,6 +484,7 @@ export class Database {
         ON u.id = ca.user_id
         WHERE ca.club_id = $1::int
 			AND ca.is_admin = true
+		ORDER BY u.last_name ASC
       `,
       [clubId]
     );
@@ -508,6 +510,7 @@ export class Database {
 				WHERE user_id=$1::int 
 					AND is_admin=true
 			)
+			ORDER BY id ASC
 		`,[userId]
 	);
 	return res.rows;
@@ -547,6 +550,7 @@ export class Database {
 				email,
 				is_admin AS "isAdmin"
 			FROM users
+			ORDER BY last_name ASC
 		`
 	 );
 	 return res.rows;

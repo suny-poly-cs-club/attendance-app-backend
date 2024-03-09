@@ -31,6 +31,7 @@ services:
     environment:
       TZ: 'America/New_York'
       PGTZ: 'America/New_York'
+      PGUSER: '${POSTGRES_USER}'
     env_file:
       - '.env'
     volumes:

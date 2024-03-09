@@ -10,6 +10,20 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: btree_gist; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION btree_gist IS 'support for indexing common datatypes in GiST';
+
+
+--
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -60,6 +74,38 @@ ALTER SEQUENCE public.check_ins_id_seq OWNED BY public.check_ins.id;
 
 
 --
+-- Name: club_admins; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.club_admins (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    club_id bigint NOT NULL,
+    is_admin boolean NOT NULL
+);
+
+
+--
+-- Name: club_admins_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.club_admins_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: club_admins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.club_admins_id_seq OWNED BY public.club_admins.id;
+
+
+--
 -- Name: club_days; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -67,6 +113,7 @@ CREATE TABLE public.club_days (
     id integer NOT NULL,
     starts_at timestamp with time zone NOT NULL,
     ends_at timestamp with time zone NOT NULL,
+    club_id integer NOT NULL,
     CONSTRAINT club_days_check CHECK ((ends_at > starts_at))
 );
 
@@ -92,6 +139,36 @@ ALTER SEQUENCE public.club_days_id_seq OWNED BY public.club_days.id;
 
 
 --
+-- Name: clubs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.clubs (
+    id integer NOT NULL,
+    name character varying(80) NOT NULL
+);
+
+
+--
+-- Name: clubs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.clubs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: clubs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.clubs_id_seq OWNED BY public.clubs.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -108,9 +185,9 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     first_name character varying(80) NOT NULL,
     last_name character varying(80) NOT NULL,
-    email text NOT NULL,
+    email character varying(255) NOT NULL,
     is_admin boolean DEFAULT false NOT NULL,
-    password_hash text NOT NULL
+    password_hash character(60) NOT NULL
 );
 
 
@@ -142,10 +219,24 @@ ALTER TABLE ONLY public.check_ins ALTER COLUMN id SET DEFAULT nextval('public.ch
 
 
 --
+-- Name: club_admins id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_admins ALTER COLUMN id SET DEFAULT nextval('public.club_admins_id_seq'::regclass);
+
+
+--
 -- Name: club_days id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.club_days ALTER COLUMN id SET DEFAULT nextval('public.club_days_id_seq'::regclass);
+
+
+--
+-- Name: clubs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clubs ALTER COLUMN id SET DEFAULT nextval('public.clubs_id_seq'::regclass);
 
 
 --
@@ -172,6 +263,14 @@ ALTER TABLE ONLY public.check_ins
 
 
 --
+-- Name: club_admins club_admins_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_admins
+    ADD CONSTRAINT club_admins_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: club_days club_days_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -184,7 +283,15 @@ ALTER TABLE ONLY public.club_days
 --
 
 ALTER TABLE ONLY public.club_days
-    ADD CONSTRAINT club_days_tstzrange_excl EXCLUDE USING gist (tstzrange(starts_at, ends_at) WITH &&);
+    ADD CONSTRAINT club_days_tstzrange_excl EXCLUDE USING gist (club_id WITH =, tstzrange(starts_at, ends_at) WITH &&);
+
+
+--
+-- Name: clubs clubs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.clubs
+    ADD CONSTRAINT clubs_pkey PRIMARY KEY (id);
 
 
 --
@@ -216,7 +323,7 @@ ALTER TABLE ONLY public.users
 --
 
 ALTER TABLE ONLY public.check_ins
-    ADD CONSTRAINT check_ins_club_day_id_fkey FOREIGN KEY (club_day_id) REFERENCES public.club_days(id);
+    ADD CONSTRAINT check_ins_club_day_id_fkey FOREIGN KEY (club_day_id) REFERENCES public.club_days(id) ON DELETE CASCADE;
 
 
 --
@@ -224,7 +331,31 @@ ALTER TABLE ONLY public.check_ins
 --
 
 ALTER TABLE ONLY public.check_ins
-    ADD CONSTRAINT check_ins_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+    ADD CONSTRAINT check_ins_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: club_admins club_admins_club_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_admins
+    ADD CONSTRAINT club_admins_club_id_fkey FOREIGN KEY (club_id) REFERENCES public.clubs(id) ON DELETE CASCADE;
+
+
+--
+-- Name: club_admins club_admins_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_admins
+    ADD CONSTRAINT club_admins_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: club_days club_days_club_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_days
+    ADD CONSTRAINT club_days_club_id_fkey FOREIGN KEY (club_id) REFERENCES public.clubs(id) ON DELETE CASCADE;
 
 
 --
@@ -237,4 +368,6 @@ ALTER TABLE ONLY public.check_ins
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20231023204113');
+    ('20231023204113'),
+    ('20240301230055'),
+    ('20240305221430');

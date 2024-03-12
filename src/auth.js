@@ -89,24 +89,33 @@ export const authenticatedClubDay = () =>
     }
 
     //get the thing
-    let clubId = (req.body) ? req.body.clubId : undefined;
+    // let clubId = (req.body) ? req.body.clubId : undefined;
     //check its a number
 
-    if(!clubId || isNaN(clubId)){
-      //if not check in the headers
-      clubId = Number(req.query.clubId);
+    let clubId = Number(req?.params?.clubId || req?.body?.clubId || req?.query?.clubId);
 
-      if(!clubId || isNaN(clubId)){
-        reply.status(404).send();
-        return;
-      }
+    if (isNaN(clubId)) {
+      reply.status(404).send();
+      return;
     }
 
-    if(!req.ctx.db.isUserClubAdmin(authdUser.id,clubId)){
+    //if(!clubId || isNaN(clubId)){
+    //  //if not check in the headers
+    //  clubId = Number(req.query.clubId);
+
+    //  if(!clubId || isNaN(clubId)){
+    //    reply.status(404).send();
+    //    return;
+    //  }
+    //}
+
+    if(!req.ctx.db.isUserClubAdmin(authdUser.id, clubId)) {
       reply.status(403).send();
       return;
     }
+
     req.user = authdUser;
+    req.clubId = clubId;
 };
 
 

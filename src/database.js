@@ -216,7 +216,7 @@ export class Database {
    * @param {number} id
    * @returns {ClubDay}
    */
-  async getClubDay(id) {
+  async getClubDay(idbody) {
     const res = await this.client.query(
       `
         SELECT

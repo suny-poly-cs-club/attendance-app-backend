@@ -166,7 +166,7 @@ ClubDay
 #### Get Club Day
 **Request**
 ```http
-GET /club-days/<id>?clibId=<clubId>
+GET /club-days/<id>?clubId=<clubId>
 Authorization: Token
 ```
 

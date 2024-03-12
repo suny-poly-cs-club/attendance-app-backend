@@ -43,21 +43,21 @@ const main = async () => {
   app.register(userRoutes, {prefix: '/user'});
   app.register(postEndpoints, {prefix: '/'});
   app.register(checkInRoutes, {prefix: '/check-in'});
-  app.register(clubDayRoutes, {prefix: '/club-days'});
+  app.register(clubDayRoutes, {prefix: '/clubs'});
   app.register(clubEndpointsGE, {prefix: '/club'});
   app.register(clubEndpointsSA, {prefix: '/clubsa'});
-  
+
   //used by the app to verify the exsistance of this server
   app.get('/ver', (req, reply) => {
-	 reply.setType("plain/text");
-		return "attendance app cs";
+    reply.setType("plain/text");
+    return "attendance app cs";
   });
-  
+
   //message that is displayed before the login/signup screen
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
   app.get('/message', (req, reply) => {
-	 reply.setType("plain/text");
-		return "ENTER ORGANIZATION SPECIFIC MESSAGE HERE";
+    reply.setType("plain/text");
+    return "ENTER ORGANIZATION SPECIFIC MESSAGE HERE";
   });
 
   try {
@@ -65,9 +65,9 @@ const main = async () => {
       port: PORT,
       host: '0.0.0.0',
     })
-      .then(addr => {
-        console.log("Listening on", addr);
-      });
+    .then(addr => {
+      console.log("Listening on", addr);
+    });
   } catch (err) {
     console.error('Failed to bind to port', err);
     process.exit(1);

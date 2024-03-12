@@ -34,7 +34,7 @@ const getClubDay = async (req, reply) => {
 };
 
 export const clubDayRoutes = (app, _options, done) => {
-  app.addHook('onRequest', authenticatedClubDay());
+  app.addHook('preHandler', authenticatedClubDay());
 
   app.post('/', async (req, reply) => {
     const result = safeParse(CreateClubDaySchema, req.body);
@@ -51,12 +51,12 @@ export const clubDayRoutes = (app, _options, done) => {
       reply.status(400);
       return {message: '`startsAt` must come before `endsAt`'};
     }
-	
-	const clubId = req.body.clubId;
-	if(!clubId || isNaN(clubId)){
-		reply.status(400);
-		return {message: 'club ID not found in request body'};
-	}
+
+    const clubId = req.body.clubId;
+    if(!clubId || isNaN(clubId)){
+      reply.status(400);
+      return {message: 'club ID not found in request body'};
+    }
 
     const cd = await req.ctx.db.createClubDay({startsAt, endsAt,clubId});
     return cd;
@@ -64,12 +64,12 @@ export const clubDayRoutes = (app, _options, done) => {
 
   app.get('/', async (req, _reply) => {
     // TODO: paginate this maybe
-	let clubId = Number(req.query.clubId);
-	if(!clubId || isNaN(clubId)){
-		_reply.status(400);
-		return {message: 'club ID querey not found'};
-	}
-	
+    let clubId = Number(req.query.clubId);
+    if(!clubId || isNaN(clubId)){
+      _reply.status(400);
+      return {message: 'club ID querey not found'};
+    }
+
     const clubDays = await req.ctx.db.getAllClubDaysByClub(clubId);
     return clubDays;
   });

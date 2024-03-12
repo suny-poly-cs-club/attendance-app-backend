@@ -114,12 +114,12 @@ export class Database {
     );
 
     const user = res.rows[0];
-	
+
 	console.log("REGISTERD USER");
-	
+
 	const firstChek = await this.client.query(
 		`
-			SELECT count(id) FROM users 
+			SELECT count(id) FROM users
 		`
 	);
 	const num = firstChek.rows[0].count;
@@ -133,7 +133,7 @@ export class Database {
 	}else{
 		console.log("USER NOT FIRST "+num);
 	}
-	
+
     return user; //? mapUser(user) : null;
   }
 
@@ -223,7 +223,7 @@ export class Database {
           id,
           starts_at AS "startsAt",
           ends_at AS "endsAt",
-		  club_id AS "clubId"
+          club_id AS "clubId"
         FROM club_days
         WHERE id = $1::int
       `,
@@ -255,7 +255,7 @@ export class Database {
 
     return res.rows;
   }
-  
+
   async deleteClubDay(id) {
     const res = await this.client.query(
       `
@@ -271,7 +271,7 @@ export class Database {
 
     return res.rows.length ? res.rows[0] : null;
   }
-  
+
   async getAllClubDaysByClub(clubId) {
     const res = await this.client.query(
       `
@@ -306,7 +306,7 @@ export class Database {
   async checkInCurrent(userID) {
     const res = await this.client.query(
       `
-        INSERT INTO check_ins (user_id, club_day_id) 
+        INSERT INTO check_ins (user_id, club_day_id)
         VALUES ($1::int,
                (SELECT id
                 FROM club_days
@@ -360,11 +360,11 @@ export class Database {
 
     return res.rows;
   }
-  
+
   ////////// Clubs //////////
-  
+
   /**creates a new club with the given name
-  @param {string} name the name of the club 
+  @param {string} name the name of the club
   @returns object with an id element, the ID of the new club
   */
   async createClub(name){
@@ -382,7 +382,7 @@ export class Database {
     const cd = res.rows[0];
     return cd;
   }
-  
+
   async deleteClub(id){
 	const res = await this.client.query(
       `
@@ -397,7 +397,7 @@ export class Database {
 
     return res.rows.length ? res.rows[0] : null;
   }
-  
+
   async getClub(id){
 	const res = await this.client.query(
       `
@@ -408,7 +408,7 @@ export class Database {
     );
 	return res.rows[0];
   }
-  
+
   async getAllClubs(){
 	  const res = await this.client.query(
 		`
@@ -417,9 +417,9 @@ export class Database {
 	  );
 	  return res.rows;
   }
-  
+
   ////////// Club admin //////////
-  
+
   /**sets wether a user is an admin for a given club
 	@param {number} userId the id of the user
 	@param {number} clubId the id of the club
@@ -434,14 +434,14 @@ export class Database {
 		`,
 		[userId,clubId]
 	  );
-	  
+
 	  let res = null;
 	  if(exsistsRequest.rows && exsistsRequest.rows[0].count==1){//if so update the exsisting row wiht the new value
 		res = await this.client.query(
 			`
-				UPDATE club_admins 
-				SET is_admin=$1::boolean 
-				WHERE user_id=$2::int 
+				UPDATE club_admins
+				SET is_admin=$1::boolean
+				WHERE user_id=$2::int
 					AND club_id=$3::int
 				RETURNING
 					user_id AS "userId",
@@ -465,7 +465,7 @@ export class Database {
 	  }
 	  return res.rows[0];
   }
-  
+
   /**gets all the users who are admins for a given club
    @param (number) clubId the id of the club
    @returns an array of users
@@ -491,31 +491,32 @@ export class Database {
 
     return res.rows;
   }
-  
+
   /**get all the clubs a user is an admin of
 	@param {number} userId the ID of the user
 	@returns clubs the user is an admin of
   */
   async getClubsAdminOf(userId){
 	//SELECT name,id FROM clubs WHERE id=(SELECT club_id FROM club_admins WHERE user_id=6 AND is_admin=true)
-	const res = await this.client.query(
-		`
-			SELECT 
-				name,
-				id 
-			FROM clubs 
-			WHERE id=(
-				SELECT club_id 
-				FROM club_admins 
-				WHERE user_id=$1::int 
-					AND is_admin=true
-			)
-			ORDER BY id ASC
-		`,[userId]
-	);
-	return res.rows;
+    const res = await this.client.query(
+      `
+        SELECT
+          c.name,
+          c.id
+        FROM clubs c
+        INNER JOIN
+        club_admins ca
+        ON c.id = ca.club_id
+        WHERE
+          ca.user_id = $1::int
+          AND ca.is_admin
+        ORDER BY c.id ASC
+      `,
+      [userId]
+    );
+    return res.rows;
   }
-  
+
   /**
 	@param {number} userID the ID of the user
 	@param {number} clubID the id of the club
@@ -527,23 +528,23 @@ export class Database {
 		`,
 		[userId,clubId]
 	  );
-	  
+
 	  //if nothing was returned they are not an admin, else return what was found in the database
 	  if(!res.rows)
 		  return false
 	  return res.rows.length ? res.rows[0].isAdmin : false;
   }
-  
-  
+
+
   ////////// User //////////
-  
+
   /** get all of the users in the database
 	@returns array containing all users
   */
   async getAllUsers(){
 	 const res = await this.client.query(
 		`
-			SELECT 
+			SELECT
 				id,
 				first_name AS "firstName",
 				last_name AS "lastName",
@@ -555,13 +556,13 @@ export class Database {
 	 );
 	 return res.rows;
   }
-  
+
   async setUserAdmin(userId, isAdmin){
 	const res = await this.client.query(
 		`
-			UPDATE users 
-			SET is_admin=$1::boolean 
-			WHERE id=$2::int 
+			UPDATE users
+			SET is_admin=$1::boolean
+			WHERE id=$2::int
 			RETURNING
 				id,
 				first_name AS "firstName",
@@ -571,7 +572,7 @@ export class Database {
 		`,
 		[isAdmin,userId]
 	);
-	
+
 	return res.rows[0];
   }
   //this does not work for some reason. I'm just gogin to do it in javascript. mutch more secure anyway
@@ -585,7 +586,7 @@ export class Database {
 	//  //for some reason the querey does not work with this escape method
 	//  const res = await this.client.query(
 	//	`
-	//		SELECT 
+	//		SELECT
 	//			id,
 	//			first_name AS "firstName",
 	//			last_name AS "lastName",
@@ -595,13 +596,13 @@ export class Database {
 	//		WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%';
 	//	`,[words]
 	//  );
-	//  
+	//
 	//  return res.rows;
   //}
 }
 
-  
-  
+
+
 
 export const PostgresErrorCode = {
   UniqueViolation: '23505',

@@ -49,14 +49,14 @@ const main = async () => {
   
   //used by the app to verify the exsistance of this server
   app.get('/ver', (req, reply) => {
-	 reply.setType("plain/text");
+	 reply.type("text/plain");
 		return "attendance app cs";
   });
   
   //message that is displayed before the login/signup screen
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
   app.get('/message', (req, reply) => {
-	 reply.setType("plain/text");
+	 reply.type("text/plain");
 		return "ENTER ORGANIZATION SPECIFIC MESSAGE HERE";
   });
 

@@ -2,6 +2,8 @@ import 'dotenv/config';
 import fastify from 'fastify';
 import _fastifyCors from '@fastify/cors';
 
+import fs from 'node:fs';
+
 import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
 import {Context} from "./context.js";
@@ -14,8 +16,22 @@ import {clubEndpointsGE,clubEndpointsSA} from './routes/club.js';
 
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
+  
+  if(process.env.USE_HTTPS){
+	console.log("Using HTTPS");
+  }else{
+	console.log("NOT using HTTPS");
+  }
 
-  const app = fastify({
+  const app = (process.env.USE_HTTPS) ? fastify({
+    logger: true,
+	http2: true,
+	https: {
+	  allowHTTP1: true,//fallback support for non https connections
+	  key: fs.readFileSync(process.env.SSL_KEY),
+	  cert: fs.readFileSync(process.env.SSL_CERT)
+	},
+  }) : fastify({
     logger: true,
   });
 

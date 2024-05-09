@@ -2,3 +2,5 @@
 /.env
 .DS_STORE
 restart.bat
+runDocker.sh
+/ssl/*

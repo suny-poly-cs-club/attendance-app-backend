@@ -17,13 +17,13 @@ import {clubEndpointsGE,clubEndpointsSA} from './routes/club.js';
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
   
-  if(process.env.USE_HTTPS){
+  if(process.env.USE_HTTPS=="true"){
 	console.log("Using HTTPS");
   }else{
 	console.log("NOT using HTTPS");
   }
 
-  const app = (process.env.USE_HTTPS) ? fastify({
+  const app = (process.env.USE_HTTPS=="true") ? fastify({
     logger: true,
 	http2: true,
 	https: {

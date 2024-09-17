@@ -4,13 +4,13 @@ import _fastifyCors from '@fastify/cors';
 
 import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
-import {Context} from "./context.js";
+import {Context} from './context.js';
 import {Database} from './database.js';
 import {AuthManager, authenticated} from './auth.js';
 import {checkInRoutes} from './routes/checkIn.js';
 import {QRManager} from './qr.js';
 import {clubDayRoutes} from './routes/clubDay.js';
-import {clubEndpointsGE,clubEndpointsSA} from './routes/club.js';
+import {clubEndpointsGE, clubEndpointsSA} from './routes/club.js';
 
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
@@ -40,11 +40,7 @@ const main = async () => {
     done();
   });
 
-  app.get(
-    '/user',
-    {onRequest: [authenticated()]},
-    req => req.user
-  );
+  app.get('/user', {onRequest: [authenticated()]}, req => req.user);
 
   app.register(userRoutes, {prefix: '/users'});
   app.register(postEndpoints, {prefix: '/'});
@@ -55,26 +51,27 @@ const main = async () => {
 
   //used by the app to verify the exsistance of this server
   app.get('/ver', (req, reply) => {
-    reply.setType("plain/text");
-    return "attendance app cs";
+    reply.setType('plain/text');
+    return 'attendance app cs';
   });
 
   //message that is displayed before the login/signup screen
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
   app.get('/message', (req, reply) => {
-    reply.setType("plain/text");
-    return "ENTER ORGANIZATION SPECIFIC MESSAGE HERE";
+    reply.setType('plain/text');
+    return 'ENTER ORGANIZATION SPECIFIC MESSAGE HERE';
   });
 
   try {
-    await app.listen({
-      port: PORT,
-      host: '0.0.0.0',
-    })
-    .then(addr => {
-      console.log("Listening on", addr);
-      console.log(app.printRoutes());
-    });
+    await app
+      .listen({
+        port: PORT,
+        host: '0.0.0.0',
+      })
+      .then(addr => {
+        console.log('Listening on', addr);
+        console.log(app.printRoutes());
+      });
   } catch (err) {
     console.error('Failed to bind to port', err);
     process.exit(1);

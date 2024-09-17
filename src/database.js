@@ -115,24 +115,18 @@ export class Database {
 
     const user = res.rows[0];
 
-    console.log("REGISTERD USER");
-
-	const firstChek = await this.client.query(
-		`
-			SELECT count(id) FROM users
-		`
-	);
-	const num = firstChek.rows[0].count;
-	if(num == 1){//if this is the first user
-		console.log("FIRST USER MAKING ADMIN");
-		//make them an admin
-		const makeAdmin = this.client.query(
-			`UPDATE users SET is_admin=true WHERE id=$1::int`,[user.id]
-		);
-		user.isAdmin=true;
-	}else{
-		console.log("USER NOT FIRST "+num);
-	}
+    const firstChek = await this.client.query('SELECT count(id) FROM users');
+    const num = firstChek.rows[0].count;
+    if (num === 1) {
+      //if this is the first user
+      console.log('Promoting first user to service admin');
+      //make them an admin
+      await this.client.query(
+        'UPDATE users SET is_admin=true WHERE id=$1::int',
+        [user.id]
+      );
+      user.isAdmin = true;
+    }
 
     return user; //? mapUser(user) : null;
   }
@@ -193,7 +187,7 @@ export class Database {
     // return cd ? mapClubDay(cd) : null;
   }
 
-//this function is currently not used
+  //this function is currently not used
   async getCurrentClubDay() {
     const res = await this.client.query(
       `
@@ -290,7 +284,7 @@ export class Database {
 		WHERE club_id = $1::int
         ORDER BY cd.ends_at DESC;
       `,
-	  [clubId]//NOTE the WHERE part of the query has not been tested
+      [clubId] //NOTE the WHERE part of the query has not been tested
     );
 
     return res.rows;
@@ -298,7 +292,7 @@ export class Database {
 
   ////////// Check Ins //////////
 
-//not currently used. rebly should remove for new club system
+  //not currently used. rebly should remove for new club system
   /**
    * Checks in to the currently ongoing club day
    * @param {number} userID
@@ -367,8 +361,8 @@ export class Database {
   @param {string} name the name of the club
   @returns object with an id element, the ID of the new club
   */
-  async createClub(name){
-	  const res = await this.client.query(
+  async createClub(name) {
+    const res = await this.client.query(
       `
         INSERT INTO clubs (name)
         VALUES ($1::varchar(80))
@@ -383,8 +377,8 @@ export class Database {
     return cd;
   }
 
-  async deleteClub(id){
-	const res = await this.client.query(
+  async deleteClub(id) {
+    const res = await this.client.query(
       `
         DELETE FROM clubs
         WHERE id = $1::int
@@ -398,43 +392,47 @@ export class Database {
     return res.rows.length ? res.rows[0] : null;
   }
 
-  async getClub(id){
-	const res = await this.client.query(
+  async getClub(id) {
+    const res = await this.client.query(
       `
         SELECT * FROM clubs
         WHERE id = $1::int
       `,
       [id]
     );
-	return res.rows[0];
+    return res.rows[0];
   }
 
-  async getAllClubs(){
-	  const res = await this.client.query(
-		`
+  async getAllClubs() {
+    const res = await this.client.query(
+      `
 			SELECT * FROM clubs;
 		`
-	  );
-	  return res.rows;
+    );
+    return res.rows;
   }
 
   ////////// Club admin //////////
 
   async addClubAdmin(clubID, userID) {
-    const res = await this.client.query(`
+    const res = await this.client.query(
+      `
       INSERT INTO club_admins (user_id, club_id, is_admin)
       VALUES ($1::int, $2::int, true)
       RETURNING
         user_id AS "userId",
         club_id AS "clubId",
         is_admin AS "isAdmin";
-      `, [userID, clubID]);
+      `,
+      [userID, clubID]
+    );
 
     return res.rows[0];
   }
 
   async removeClubAdmin(clubID, userID) {
-    const res = await this.client.query(`
+    const res = await this.client.query(
+      `
       DELETE FROM club_admins
       WHERE
         user_id = $1::int
@@ -443,7 +441,9 @@ export class Database {
         user_id AS "userId",
         club_id AS "clubId",
         is_admin AS "isAdmin";
-      `, [userID, clubID]);
+      `,
+      [userID, clubID]
+    );
 
     return res.rows[0];
   }
@@ -454,19 +454,20 @@ export class Database {
 	@param {boolean} isAdmin wether they are now an admin or not
 	@returns the passed in data from the database
   */
-  async setClubAdmin(userId, clubId, isAdmin){
-	  //check to see if the user is allready in the table for the given club
-	  const exsistsRequest = await this.client.query(
-		`
+  async setClubAdmin(userId, clubId, isAdmin) {
+    //check to see if the user is allready in the table for the given club
+    const exsistsRequest = await this.client.query(
+      `
 			SELECT count(id) FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
 		`,
-		[userId,clubId]
-	  );
+      [userId, clubId]
+    );
 
-	  let res = null;
-	  if(exsistsRequest.rows && exsistsRequest.rows[0].count==1){//if so update the exsisting row wiht the new value
-		res = await this.client.query(
-			`
+    let res = null;
+    if (exsistsRequest.rows && exsistsRequest.rows[0].count === 1) {
+      //if so update the exsisting row wiht the new value
+      res = await this.client.query(
+        `
 				UPDATE club_admins
 				SET is_admin=$1::boolean
 				WHERE user_id=$2::int
@@ -476,11 +477,12 @@ export class Database {
 					club_id AS "clubId",
 					is_admin AS "isAdmin";
 			`,
-			[isAdmin,userId,clubId]
-		);
-	  }else{//else add a new entry to the table
-		res = await this.client.query(
-			`
+        [isAdmin, userId, clubId]
+      );
+    } else {
+      //else add a new entry to the table
+      res = await this.client.query(
+        `
 				INSERT INTO club_admins(user_id,club_id,is_admin)
 				VALUES($1::int, $2::int, $3::boolean)
 				RETURNING
@@ -488,18 +490,18 @@ export class Database {
 					club_id AS "clubId",
 					is_admin AS "isAdmin";
 			`,
-			[userId,clubId,isAdmin]
-		);
-	  }
-	  return res.rows[0];
+        [userId, clubId, isAdmin]
+      );
+    }
+    return res.rows[0];
   }
 
   /**gets all the users who are admins for a given club
    @param (number) clubId the id of the club
    @returns an array of users
   */
-  async getClubAdmins(clubId){
-	  const res = await this.client.query(
+  async getClubAdmins(clubId) {
+    const res = await this.client.query(
       `
         SELECT
           u.id,
@@ -508,11 +510,12 @@ export class Database {
           u.email,
           u.is_admin AS "isAdmin"
         FROM club_admins ca
-        INNER JOIN users u
-        ON u.id = ca.user_id
-        WHERE ca.club_id = $1::int
-			AND ca.is_admin = true
-		ORDER BY u.last_name ASC
+        RIGHT JOIN users u
+          ON u.id = ca.user_id
+        WHERE
+          (ca.club_id = $1::int AND ca.is_admin)
+          OR u.is_admin
+		    ORDER BY u.last_name ASC
       `,
       [clubId]
     );
@@ -524,8 +527,8 @@ export class Database {
 	@param {number} userId the ID of the user
 	@returns clubs the user is an admin of
   */
-  async getClubsAdminOf(userId){
-	//SELECT name,id FROM clubs WHERE id=(SELECT club_id FROM club_admins WHERE user_id=6 AND is_admin=true)
+  async getClubsAdminOf(userId) {
+    //SELECT name,id FROM clubs WHERE id=(SELECT club_id FROM club_admins WHERE user_id=6 AND is_admin=true)
     const res = await this.client.query(
       `
         SELECT
@@ -549,36 +552,35 @@ export class Database {
 	@param {number} userID the ID of the user
 	@param {number} clubID the id of the club
   */
-  async isUserClubAdmin(userId,clubId){
-	 const res = await this.client.query(
-			// SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
-		`
+  async isUserClubAdmin(userId, clubId) {
+    const res = await this.client.query(
+      // SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
+      `
       SELECT 1
       FROM club_admins
       WHERE
         user_id=$1::int
         AND club_id=$2::int
 		`,
-		[userId, clubId]
-	  );
+      [userId, clubId]
+    );
 
-	  //if nothing was returned they are not an admin, else return what was found in the database
-	  // if(!res.rows)
-		  // return false
-	  // return res.rows.length ? res.rows[0].isAdmin : false;
+    //if nothing was returned they are not an admin, else return what was found in the database
+    // if(!res.rows)
+    // return false
+    // return res.rows.length ? res.rows[0].isAdmin : false;
 
     return !!res.rows.length;
   }
-
 
   ////////// User //////////
 
   /** get all of the users in the database
 	@returns array containing all users
   */
-  async getAllUsers(){
-	 const res = await this.client.query(
-		`
+  async getAllUsers() {
+    const res = await this.client.query(
+      `
 			SELECT
 				id,
 				first_name AS "firstName",
@@ -588,13 +590,13 @@ export class Database {
 			FROM users
 			ORDER BY last_name ASC
 		`
-	 );
-	 return res.rows;
+    );
+    return res.rows;
   }
 
-  async setUserAdmin(userId, isAdmin){
-	const res = await this.client.query(
-		`
+  async setUserAdmin(userId, isAdmin) {
+    const res = await this.client.query(
+      `
 			UPDATE users
 			SET is_admin=$1::boolean
 			WHERE id=$2::int
@@ -605,39 +607,36 @@ export class Database {
 				email,
 				is_admin AS "isAdmin"
 		`,
-		[isAdmin,userId]
-	);
+      [isAdmin, userId]
+    );
 
-	return res.rows[0];
+    return res.rows[0];
   }
   //this does not work for some reason. I'm just gogin to do it in javascript. mutch more secure anyway
   ///** search all users for ones who's first or last name matches the inputs
-	//@param {string array} words the words to use in the search
-	//@returns {User array} all the users that match the search words
+  //@param {string array} words the words to use in the search
+  //@returns {User array} all the users that match the search words
   //*/
   //async searchUsers(words){
-	//  const escapedWords = words.map((word) => this.client.escapeLiteral(word));
-	//  //NEEDS SQL INJECTTION PROTECTION
-	//  //for some reason the querey does not work with this escape method
-	//  const res = await this.client.query(
-	//	`
-	//		SELECT
-	//			id,
-	//			first_name AS "firstName",
-	//			last_name AS "lastName",
-	//			email,
-	//			is_admin AS "isAdmin"
-	//		FROM users
-	//		WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%';
-	//	`,[words]
-	//  );
-	//
-	//  return res.rows;
+  //  const escapedWords = words.map((word) => this.client.escapeLiteral(word));
+  //  //NEEDS SQL INJECTTION PROTECTION
+  //  //for some reason the querey does not work with this escape method
+  //  const res = await this.client.query(
+  //	`
+  //		SELECT
+  //			id,
+  //			first_name AS "firstName",
+  //			last_name AS "lastName",
+  //			email,
+  //			is_admin AS "isAdmin"
+  //		FROM users
+  //		WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%';
+  //	`,[words]
+  //  );
+  //
+  //  return res.rows;
   //}
 }
-
-
-
 
 export const PostgresErrorCode = {
   UniqueViolation: '23505',

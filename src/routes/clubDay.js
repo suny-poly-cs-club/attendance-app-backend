@@ -5,51 +5,54 @@ import {authenticated} from '../auth.js';
 import {mapValibotToFormError} from '../util/err.js';
 
 const CreateClubDaySchema = object({
-  startsAt: string([
-    isoTimestamp(),
-  ]),
+  startsAt: string([isoTimestamp()]),
   endsAt: string([
     isoTimestamp(),
-    custom(input => new Date(input).getTime() > Date.now(), 'cannot end in the past')
+    custom(
+      input => new Date(input).getTime() > Date.now(),
+      'cannot end in the past'
+    ),
   ]),
 });
 
-export const getClubHook = ({requireAdmin = false}) => async (req, reply) => {
-  const {clubId: _clubId} = req.params;
-  const clubId = Number(_clubId);
+export const getClubHook =
+  ({requireAdmin = false}) =>
+  async (req, reply) => {
+    const {clubId: _clubId} = req.params;
+    const clubId = Number(_clubId);
 
-  if (!req.user) {
-    reply.status(401).send();
-    return;
-  }
-
-  if (isNaN(clubId)) {
-    reply.status(404).send();
-    return;
-  }
-
-  if (requireAdmin) {
-    const isAdmin =
-      req.user.isAdmin ||
-        await req.ctx.db.isUserClubAdmin(req.user.id, clubId);
-
-    if (!isAdmin) {
-      reply.status(403).send();
-      console.log('not an admin', req.user, clubId, isAdmin);
+    if (!req.user) {
+      reply.status(401).send();
       return;
     }
-  }
 
-  const club = await req.ctx.db.getClub(clubId);
-  req.clubId = clubId;
-  req.club = club;
-};
+    if (Number.isNaN(clubId)) {
+      reply.status(404).send();
+      return;
+    }
+
+    if (requireAdmin) {
+      const isAdmin =
+        req.user.isAdmin ||
+        (await req.ctx.db.isUserClubAdmin(req.user.id, clubId));
+
+      if (!isAdmin) {
+        reply.status(403).send();
+        console.log('not an admin', req.user, clubId, isAdmin);
+        return;
+      }
+    }
+
+    const club = await req.ctx.db.getClub(clubId);
+    req.clubId = clubId;
+    req.club = club;
+  };
 
 const getClubDay = async (req, reply) => {
   const {clubDayId: _clubDayId} = req.params;
   const clubDayId = Number(_clubDayId);
 
-  if (isNaN(clubDayId)) {
+  if (Number.isNaN(clubDayId)) {
     reply.status(404).send();
     return;
   }
@@ -84,7 +87,11 @@ export const clubDayRoutes = (app, _options, done) => {
       return {message: '`startsAt` must come before `endsAt`'};
     }
 
-    const cd = await req.ctx.db.createClubDay({startsAt, endsAt, clubId: req.params.clubId});
+    const cd = await req.ctx.db.createClubDay({
+      startsAt,
+      endsAt,
+      clubId: req.params.clubId,
+    });
     return cd;
   });
 
@@ -98,28 +105,19 @@ export const clubDayRoutes = (app, _options, done) => {
     }
   );
 
-  app.get(
-    '/:clubDayId',
-    {onRequest: [getClubDay]},
-    async (req, _reply) => {
-      return req.clubDay;
-    }
-  );
+  app.get('/:clubDayId', {onRequest: [getClubDay]}, async (req, _reply) => {
+    return req.clubDay;
+  });
 
-  app.delete(
-    '/:clubDayId',
-    {onRequest: [getClubDay]},
-    async (req, _reply) => {
-      return req.ctx.db.deleteClubDay(req.clubDay.id);
-    }
-  );
-
+  app.delete('/:clubDayId', {onRequest: [getClubDay]}, async (req, _reply) => {
+    return req.ctx.db.deleteClubDay(req.clubDay.id);
+  });
 
   app.get('/:clubDayId/attendees', async (req, reply) => {
     const {clubDayId: _id} = req.params;
     const id = Number(_id);
 
-    if (isNaN(id)) {
+    if (Number.isNaN(id)) {
       reply.status(404).send();
       return;
     }

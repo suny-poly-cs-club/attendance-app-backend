@@ -9,5 +9,5 @@ export const mapValibotToFormError = issues => ({
   issues: issues.map(issue => ({
     name: issue.path?.map(p => p.key),
     errors: [issue.message],
-  }))
+  })),
 });

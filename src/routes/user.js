@@ -18,7 +18,7 @@ export const userRoutes = (app, _options, done) => {
     '/',
     //{onRequest: [authenticated({requireAdmin: true})]},
     async (req, reply) => {
-      reply.type("application/json");
+      reply.type('application/json');
       //you must be a service admin to do this
       const cd = await req.ctx.db.getAllUsers();
       return cd;
@@ -32,23 +32,26 @@ export const userRoutes = (app, _options, done) => {
     '/search',
     //{onRequest: [authenticated({requireAdmin: true})]},
     async (req, reply) => {
-      reply.type("application/json");
+      reply.type('application/json');
       const result = safeParse(searchWordsSchema, req.body);
       if (!result.success) {
         return reply.status(400).send(mapValibotToFormError(result.issues));
       }
-      const words = result.output.querey.split(" ");
+      const words = result.output.querey.split(' ');
 
       const allusers = await req.ctx.db.getAllUsers();
 
-      var foundSearch = [];
+      const foundSearch = [];
 
       //loop over all users
-      for(let i=0;i<allusers.length;i++){
+      for (let i = 0; i < allusers.length; i++) {
         //loop over all the search words
-        for(let j=0;j<words.length;j++){
+        for (let j = 0; j < words.length; j++) {
           //if the search word is found in either the first or last name
-          if(allusers[i].firstName.includes(words[j]) || allusers[i].lastName.includes(words[j])){
+          if (
+            allusers[i].firstName.includes(words[j]) ||
+            allusers[i].lastName.includes(words[j])
+          ) {
             //add this user to the new list
             foundSearch.push(allusers[i]);
             //this user is on the list so we do not need to check for more matching words
@@ -64,14 +67,15 @@ export const userRoutes = (app, _options, done) => {
   app.patch('/:userId', async (req, reply) => {
     const result = safeParse(UpdateUserSchema, req.body);
     if (!result.success) {
-      return reply
-        .status(400)
-        .send(mapValibotToFormError(result.issues));
+      return reply.status(400).send(mapValibotToFormError(result.issues));
     }
 
     if ('service_admin' in result.output) {
-      const out = await req.ctx.db.setUserAdmin(req.params.userId, result.output.service_admin);
-      console.log(out)
+      const out = await req.ctx.db.setUserAdmin(
+        req.params.userId,
+        result.output.service_admin
+      );
+      console.log(out);
     }
 
     return reply.status(204).send();

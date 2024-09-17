@@ -21,19 +21,20 @@ export class QRManager {
    * @returns {string}
    */
   createQRToken(clubDay) {
-    return jwt.sign({
-      cdID: clubDay.id,
+    return jwt.sign(
+      {
+        cdID: clubDay.id,
 
-      // not valid before - start time
-      nbf: Math.round(clubDay.startsAt.getTime() / 1_000),
+        // not valid before - start time
+        nbf: Math.round(clubDay.startsAt.getTime() / 1_000),
 
-      // expires at - end time
-      exp: Math.round(clubDay.endsAt.getTime() / 1_000),
+        // expires at - end time
+        exp: Math.round(clubDay.endsAt.getTime() / 1_000),
 
-      // issued at - current time
-      iat: Math.round(Date.now() / 1_000),
-    },
-    this.#jwtSecret,
+        // issued at - current time
+        iat: Math.round(Date.now() / 1_000),
+      },
+      this.#jwtSecret,
       {
         algorithm: 'HS256',
       }
@@ -43,7 +44,7 @@ export class QRManager {
   verifyQRToken(token) {
     try {
       return jwt.verify(token, this.#jwtSecret);
-    } catch(e) {
+    } catch (e) {
       console.error('Failed to verify JWT:', e);
       return false;
     }

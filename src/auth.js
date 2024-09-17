@@ -20,15 +20,11 @@ export class AuthManager {
    * @returns {string} the signed JWT
    */
   createToken(user) {
-    return jwt.sign(
-      {},
-      this.#jwtSecret,
-      {
-        subject: user.id.toString(),
-        expiresIn: '1h',
-        algorithm: 'HS256',
-      }
-    );
+    return jwt.sign({}, this.#jwtSecret, {
+      subject: user.id.toString(),
+      expiresIn: '1h',
+      algorithm: 'HS256',
+    });
   }
 
   /**
@@ -42,7 +38,7 @@ export class AuthManager {
   verifyToken(token) {
     try {
       return jwt.verify(token, this.#jwtSecret);
-    } catch(e) {
+    } catch (e) {
       console.error('Failed to verify JWT:', e);
       return false;
     }
@@ -52,7 +48,8 @@ export class AuthManager {
 /**
  * Simple middleware to check if a user is authenticated or not
  */
-export const authenticated = ({requireAdmin = false} = {}) =>
+export const authenticated =
+  ({requireAdmin = false} = {}) =>
   async (req, reply) => {
     const authdUser = await req.ctx.getAuthenticatedUser();
 
@@ -83,8 +80,6 @@ export const authenticated = ({requireAdmin = false} = {}) =>
 //       reply.status(404).send();
 //       return;
 //     }
-
-
 
 //     if (req.user.isAdmin) {
 //       return;

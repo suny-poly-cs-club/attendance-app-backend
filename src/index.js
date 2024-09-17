@@ -6,7 +6,7 @@ import {userRoutes} from './routes/user.js';
 import {postEndpoints} from './posted.js';
 import {Context} from "./context.js";
 import {Database} from './database.js';
-import {AuthManager} from './auth.js';
+import {AuthManager, authenticated} from './auth.js';
 import {checkInRoutes} from './routes/checkIn.js';
 import {QRManager} from './qr.js';
 import {clubDayRoutes} from './routes/clubDay.js';
@@ -40,11 +40,17 @@ const main = async () => {
     done();
   });
 
-  app.register(userRoutes, {prefix: '/user'});
+  app.get(
+    '/user',
+    {onRequest: [authenticated()]},
+    req => req.user
+  );
+
+  app.register(userRoutes, {prefix: '/users'});
   app.register(postEndpoints, {prefix: '/'});
   app.register(checkInRoutes, {prefix: '/check-in'});
-  app.register(clubDayRoutes, {prefix: '/clubs'});
-  app.register(clubEndpointsGE, {prefix: '/club'});
+  app.register(clubDayRoutes, {prefix: '/clubs/:clubId/club-days'});
+  app.register(clubEndpointsGE, {prefix: '/clubs'});
   app.register(clubEndpointsSA, {prefix: '/clubsa'});
 
   //used by the app to verify the exsistance of this server
@@ -67,6 +73,7 @@ const main = async () => {
     })
     .then(addr => {
       console.log("Listening on", addr);
+      console.log(app.printRoutes());
     });
   } catch (err) {
     console.error('Failed to bind to port', err);

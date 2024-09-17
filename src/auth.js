@@ -71,51 +71,22 @@ export const authenticated = ({requireAdmin = false} = {}) =>
     req.user = authdUser;
   };
 
-export const authenticatedClubDay = () =>
-  async (req, reply) => {
-    //get the user
-    const authdUser = await req.ctx.getAuthenticatedUser();
-    // the user does not exist
-    if (!authdUser) {
-      reply.status(401).send();
-      return;
-    }
+// export const requireClubAdmin = () =>
+//   async (req, reply) => {
+//     if (!req.user) {
+//       reply.status(401).send();
+//       return;
+//     }
 
-    //if they are a service admin
-    if(authdUser.isAdmin){
-      //the succeed emediattly
-      req.user = authdUser;
-      return;
-    }
-
-    //get the thing
-    // let clubId = (req.body) ? req.body.clubId : undefined;
-    //check its a number
-
-    let clubId = Number(req?.params?.clubId || req?.body?.clubId || req?.query?.clubId);
-
-    if (isNaN(clubId)) {
-      reply.status(404).send();
-      return;
-    }
-
-    //if(!clubId || isNaN(clubId)){
-    //  //if not check in the headers
-    //  clubId = Number(req.query.clubId);
-
-    //  if(!clubId || isNaN(clubId)){
-    //    reply.status(404).send();
-    //    return;
-    //  }
-    //}
-
-    if(!req.ctx.db.isUserClubAdmin(authdUser.id, clubId)) {
-      reply.status(403).send();
-      return;
-    }
-
-    req.user = authdUser;
-    req.clubId = clubId;
-};
+//     const clubId = Number(req.param.clubId || req.body.clubId || req.query.clubId);
+//     if (isNaN(clubId)) {
+//       reply.status(404).send();
+//       return;
+//     }
 
 
+
+//     if (req.user.isAdmin) {
+//       return;
+//     }
+//   };

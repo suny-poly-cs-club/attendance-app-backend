@@ -115,7 +115,7 @@ export class Database {
 
     const user = res.rows[0];
 
-	console.log("REGISTERD USER");
+    console.log("REGISTERD USER");
 
 	const firstChek = await this.client.query(
 		`
@@ -183,7 +183,7 @@ export class Database {
           id,
           starts_at AS "startsAt",
           ends_at AS "endsAt",
-		  club_id AS "clubId"
+          club_id AS "clubId"
       `,
       [startsAt, endsAt, clubId]
     );
@@ -216,7 +216,7 @@ export class Database {
    * @param {number} id
    * @returns {ClubDay}
    */
-  async getClubDay(idbody) {
+  async getClubDay(clubID) {
     const res = await this.client.query(
       `
         SELECT
@@ -227,7 +227,7 @@ export class Database {
         FROM club_days
         WHERE id = $1::int
       `,
-      [id]
+      [clubID]
     );
 
     const cd = res.rows[0];
@@ -420,6 +420,34 @@ export class Database {
 
   ////////// Club admin //////////
 
+  async addClubAdmin(clubID, userID) {
+    const res = await this.client.query(`
+      INSERT INTO club_admins (user_id, club_id, is_admin)
+      VALUES ($1::int, $2::int, true)
+      RETURNING
+        user_id AS "userId",
+        club_id AS "clubId",
+        is_admin AS "isAdmin";
+      `, [userID, clubID]);
+
+    return res.rows[0];
+  }
+
+  async removeClubAdmin(clubID, userID) {
+    const res = await this.client.query(`
+      DELETE FROM club_admins
+      WHERE
+        user_id = $1::int
+        AND club_id = $2::int
+      RETURNING
+        user_id AS "userId",
+        club_id AS "clubId",
+        is_admin AS "isAdmin";
+      `, [userID, clubID]);
+
+    return res.rows[0];
+  }
+
   /**sets wether a user is an admin for a given club
 	@param {number} userId the id of the user
 	@param {number} clubId the id of the club
@@ -523,16 +551,23 @@ export class Database {
   */
   async isUserClubAdmin(userId,clubId){
 	 const res = await this.client.query(
+			// SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
 		`
-			SELECT is_admin AS "isAdmin" FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
+      SELECT 1
+      FROM club_admins
+      WHERE
+        user_id=$1::int
+        AND club_id=$2::int
 		`,
-		[userId,clubId]
+		[userId, clubId]
 	  );
 
 	  //if nothing was returned they are not an admin, else return what was found in the database
-	  if(!res.rows)
-		  return false
-	  return res.rows.length ? res.rows[0].isAdmin : false;
+	  // if(!res.rows)
+		  // return false
+	  // return res.rows.length ? res.rows[0].isAdmin : false;
+
+    return !!res.rows.length;
   }
 
 

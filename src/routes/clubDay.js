@@ -1,7 +1,7 @@
 import qr from 'qrcode';
 import {object, isoTimestamp, custom, string, safeParse} from 'valibot';
 
-import {authenticated, authenticatedClubDay} from '../auth.js';
+import {authenticated} from '../auth.js';
 import {mapValibotToFormError} from '../util/err.js';
 
 const CreateClubDaySchema = object({
@@ -13,6 +13,37 @@ const CreateClubDaySchema = object({
     custom(input => new Date(input).getTime() > Date.now(), 'cannot end in the past')
   ]),
 });
+
+export const getClubHook = ({requireAdmin = false}) => async (req, reply) => {
+  const {clubId: _clubId} = req.params;
+  const clubId = Number(_clubId);
+
+  if (!req.user) {
+    reply.status(401).send();
+    return;
+  }
+
+  if (isNaN(clubId)) {
+    reply.status(404).send();
+    return;
+  }
+
+  if (requireAdmin) {
+    const isAdmin =
+      req.user.isAdmin ||
+        await req.ctx.db.isUserClubAdmin(req.user.id, clubId);
+
+    if (!isAdmin) {
+      reply.status(403).send();
+      console.log('not an admin', req.user, clubId, isAdmin);
+      return;
+    }
+  }
+
+  const club = await req.ctx.db.getClub(clubId);
+  req.clubId = clubId;
+  req.club = club;
+};
 
 const getClubDay = async (req, reply) => {
   const {clubDayId: _clubDayId} = req.params;
@@ -33,10 +64,11 @@ const getClubDay = async (req, reply) => {
   req.clubDay = clubDay;
 };
 
+// handles /clubs/:clubId/club-days
 export const clubDayRoutes = (app, _options, done) => {
-  app.addHook('onRequest', authenticatedClubDay());
+  app.addHook('onRequest', authenticated());
 
-  app.post('/:clubId/club-days', async (req, reply) => {
+  app.post('/', async (req, reply) => {
     const result = safeParse(CreateClubDaySchema, req.body);
     if (!result.success) {
       return reply.status(400).send(mapValibotToFormError(result.issues));
@@ -52,30 +84,22 @@ export const clubDayRoutes = (app, _options, done) => {
       return {message: '`startsAt` must come before `endsAt`'};
     }
 
-    // const clubId = req.params.clubId;
-    // if(!clubId || isNaN(clubId)) {
-    //   reply.status(400);
-    //   return {message: 'club ID not found in request body'};
-    // }
-
-    const cd = await req.ctx.db.createClubDay({startsAt, endsAt, clubId: req.clubId});
+    const cd = await req.ctx.db.createClubDay({startsAt, endsAt, clubId: req.params.clubId});
     return cd;
   });
 
-  app.get('/:clubId/club-days', async (req, _reply) => {
-    // TODO: paginate this maybe
-    // const clubId = Number(req.params.clubId)
-    // if(!clubId || isNaN(clubId)){
-    //   _reply.status(400);
-    //   return {message: 'club ID querey not found'};
-    // }
-
-    const clubDays = await req.ctx.db.getAllClubDaysByClub(clubId);
-    return clubDays;
-  });
+  app.get(
+    '/',
+    {onRequest: [getClubHook({requireAdmin: true})]},
+    async (req, _reply) => {
+      // TODO: paginate this maybe
+      const clubDays = await req.ctx.db.getAllClubDaysByClub(req.clubId);
+      return clubDays;
+    }
+  );
 
   app.get(
-    '/:clubId/club-day/:clubDayId',
+    '/:clubDayId',
     {onRequest: [getClubDay]},
     async (req, _reply) => {
       return req.clubDay;
@@ -83,7 +107,7 @@ export const clubDayRoutes = (app, _options, done) => {
   );
 
   app.delete(
-    '/:clubId/club-day/:clubDayId',
+    '/:clubDayId',
     {onRequest: [getClubDay]},
     async (req, _reply) => {
       return req.ctx.db.deleteClubDay(req.clubDay.id);
@@ -91,7 +115,7 @@ export const clubDayRoutes = (app, _options, done) => {
   );
 
 
-  app.get('/:clubId/club-day/:clubDayId/attendees', async (req, reply) => {
+  app.get('/:clubDayId/attendees', async (req, reply) => {
     const {clubDayId: _id} = req.params;
     const id = Number(_id);
 
@@ -105,7 +129,7 @@ export const clubDayRoutes = (app, _options, done) => {
   });
 
   app.get(
-    '/:clubId/club-day/:clubDayId/qr-token',
+    '/:clubDayId/qr-token',
     {onRequest: [getClubDay]},
     async (req, _reply) => {
       const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
@@ -114,7 +138,7 @@ export const clubDayRoutes = (app, _options, done) => {
   );
 
   app.get(
-    '/:clubId/club-day/:clubDayId/qr.svg',
+    '/:clubDayId/qr.svg',
     {onRequest: [getClubDay]},
     async (req, reply) => {
       const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
@@ -124,7 +148,7 @@ export const clubDayRoutes = (app, _options, done) => {
   );
 
   app.get(
-    '/:clubId/club-day/:clubDayId/qr.png',
+    '/:clubDayId/qr.png',
     {onRequest: [getClubDay]},
     async (req, reply) => {
       const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);

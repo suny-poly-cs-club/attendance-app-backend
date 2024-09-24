@@ -52,13 +52,17 @@ export class Database {
     const res = await this.client.query(
       `
         SELECT
-          id,
-          first_name AS "firstName",
-          last_name AS "lastName",
-          email,
-          is_admin AS "isAdmin"
-        FROM users
-        WHERE id = $1::int
+          u.id,
+          u.first_name AS "firstName",
+          u.last_name AS "lastName",
+          u.email,
+          u.is_admin AS "isAdmin",
+          ca.user_id IS NOT NULL AS "isClubAdmin"
+
+        FROM users u
+        LEFT JOIN club_admins ca
+        ON ca.user_id = u.id
+        WHERE u.id = $1::int
       `,
       [id]
     );
@@ -417,12 +421,11 @@ export class Database {
   async addClubAdmin(clubID, userID) {
     const res = await this.client.query(
       `
-      INSERT INTO club_admins (user_id, club_id, is_admin)
-      VALUES ($1::int, $2::int, true)
+      INSERT INTO club_admins (user_id, club_id)
+      VALUES ($1::int, $2::int)
       RETURNING
         user_id AS "userId",
-        club_id AS "clubId",
-        is_admin AS "isAdmin";
+        club_id AS "clubId";
       `,
       [userID, clubID]
     );
@@ -439,8 +442,7 @@ export class Database {
         AND club_id = $2::int
       RETURNING
         user_id AS "userId",
-        club_id AS "clubId",
-        is_admin AS "isAdmin";
+        club_id AS "clubId";
       `,
       [userID, clubID]
     );
@@ -454,47 +456,47 @@ export class Database {
 	@param {boolean} isAdmin wether they are now an admin or not
 	@returns the passed in data from the database
   */
-  async setClubAdmin(userId, clubId, isAdmin) {
-    //check to see if the user is allready in the table for the given club
-    const exsistsRequest = await this.client.query(
-      `
-			SELECT count(id) FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
-		`,
-      [userId, clubId]
-    );
-
-    let res = null;
-    if (exsistsRequest.rows && exsistsRequest.rows[0].count === 1) {
-      //if so update the exsisting row wiht the new value
-      res = await this.client.query(
-        `
-				UPDATE club_admins
-				SET is_admin=$1::boolean
-				WHERE user_id=$2::int
-					AND club_id=$3::int
-				RETURNING
-					user_id AS "userId",
-					club_id AS "clubId",
-					is_admin AS "isAdmin";
-			`,
-        [isAdmin, userId, clubId]
-      );
-    } else {
-      //else add a new entry to the table
-      res = await this.client.query(
-        `
-				INSERT INTO club_admins(user_id,club_id,is_admin)
-				VALUES($1::int, $2::int, $3::boolean)
-				RETURNING
-					user_id AS "userId",
-					club_id AS "clubId",
-					is_admin AS "isAdmin";
-			`,
-        [userId, clubId, isAdmin]
-      );
-    }
-    return res.rows[0];
-  }
+  //async setClubAdmin(userId, clubId, isAdmin) {
+  //  //check to see if the user is allready in the table for the given club
+  //  const exsistsRequest = await this.client.query(
+  //    `
+  //	SELECT count(id) FROM club_admins WHERE user_id=$1::int AND club_id=$2::int;
+  //`,
+  //    [userId, clubId]
+  //  );
+  //
+  //  let res = null;
+  //  if (exsistsRequest.rows && exsistsRequest.rows[0].count === 1) {
+  //    //if so update the exsisting row wiht the new value
+  //    res = await this.client.query(
+  //      `
+  //		UPDATE club_admins
+  //		SET is_admin=$1::boolean
+  //		WHERE user_id=$2::int
+  //			AND club_id=$3::int
+  //		RETURNING
+  //			user_id AS "userId",
+  //			club_id AS "clubId",
+  //			is_admin AS "isAdmin";
+  //	`,
+  //      [isAdmin, userId, clubId]
+  //    );
+  //  } else {
+  //    //else add a new entry to the table
+  //    res = await this.client.query(
+  //      `
+  //		INSERT INTO club_admins(user_id,club_id,is_admin)
+  //		VALUES($1::int, $2::int, $3::boolean)
+  //		RETURNING
+  //			user_id AS "userId",
+  //			club_id AS "clubId",
+  //			is_admin AS "isAdmin";
+  //	`,
+  //      [userId, clubId, isAdmin]
+  //    );
+  //  }
+  //  return res.rows[0];
+  //}
 
   /**gets all the users who are admins for a given club
    @param (number) clubId the id of the club
@@ -511,10 +513,10 @@ export class Database {
           u.is_admin AS "isAdmin"
         FROM club_admins ca
         RIGHT JOIN users u
-          ON u.id = ca.user_id
+          ON u.id = ca.user_id AND ca.club_id = $1::int
         WHERE
-          (ca.club_id = $1::int AND ca.is_admin)
-          OR u.is_admin
+          u.is_admin
+          OR ca.user_id IS NOT NULL
 		    ORDER BY u.last_name ASC
       `,
       [clubId]
@@ -540,7 +542,6 @@ export class Database {
         ON c.id = ca.club_id
         WHERE
           ca.user_id = $1::int
-          AND ca.is_admin
         ORDER BY c.id ASC
       `,
       [userId]
@@ -569,6 +570,20 @@ export class Database {
     // if(!res.rows)
     // return false
     // return res.rows.length ? res.rows[0].isAdmin : false;
+
+    return !!res.rows.length;
+  }
+
+  async isUserAnyClubAdmin(userId) {
+    const res = await this.client.query(
+      `
+        SELECT 1
+        FROM club_admins
+        WHERE user_id = $1::int
+        LIMIT 1
+      `,
+      [userId]
+    );
 
     return !!res.rows.length;
   }

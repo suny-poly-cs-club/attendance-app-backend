@@ -10,8 +10,7 @@ alter table club_days add club_id int NOT NULL references clubs(id) on delete ca
 CREATE TABLE club_admins(
     id serial primary key,
     user_id int NOT NULL references users(id) on delete cascade,
-    club_id bigint NOT NULL references clubs(id) on delete cascade,
-    is_admin boolean NOT NULL
+    club_id bigint NOT NULL references clubs(id) on delete cascade
 );
 
 -- migrate:down

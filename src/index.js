@@ -44,7 +44,7 @@ const main = async () => {
   await db.connect();
 
   const authManager = new AuthManager(db);
-  const qrManager = new QRManager();
+  const qrManager = new QRManager(db);
 
   app.decorateRequest('ctx', null);
   app.decorateRequest('user', null);

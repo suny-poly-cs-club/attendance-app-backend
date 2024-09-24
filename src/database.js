@@ -17,6 +17,18 @@ const {Client} = pg;
  * @property {Date} endsAt
  * @property {number} clubId
  */
+ 
+ function makeid(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+}
 
 export class Database {
   client;
@@ -168,18 +180,35 @@ export class Database {
     if (startsAt.getTime() > endsAt.getTime()) {
       throw new Error('End date must come before start date');
     }
+	//generate a unique qr token for this club day
+	let qrToken = "";
+	let invalidQrToken = true;
+	do{
+		//generate token
+		qrToken = makeid(10);
+		const check = await this.client.query(
+			`
+			SELECT
+				id
+			FROM club_days
+			WHERE
+				qr_token = $1::text
+			`,
+			[qrToken]);
+		invalidQrToken = check.rows.length > 0;
+	}while(invalidQrToken);
 
     const res = await this.client.query(
       `
-        INSERT INTO club_days (starts_at, ends_at, club_id)
-        VALUES ($1::TIMESTAMPTZ, $2::TIMESTAMPTZ, $3::int)
+        INSERT INTO club_days (starts_at, ends_at, club_id, qr_token)
+        VALUES ($1::TIMESTAMPTZ, $2::TIMESTAMPTZ, $3::int, $4::text)
         RETURNING
           id,
           starts_at AS "startsAt",
           ends_at AS "endsAt",
           club_id AS "clubId"
       `,
-      [startsAt, endsAt, clubId]
+      [startsAt, endsAt, clubId,qrToken]
     );
 
     const cd = res.rows[0];
@@ -288,6 +317,36 @@ export class Database {
     );
 
     return res.rows;
+  }
+  
+  async getClubDayQrToken(clubDayid){
+	  const res = await this.client.query(
+		`
+			SELECT qrToken
+			FROM club_days
+			WHERE id = $1::int
+		`,
+		[clubDayid]
+	  );
+	  return res.rows[0].qrToken;
+  }
+  
+  async getClubDayFromQrToken(qrToken){
+	const res = await this.client.query(
+      `
+        SELECT
+          id,
+          starts_at AS "startsAt",
+          ends_at AS "endsAt",
+          club_id AS "clubId"
+        FROM club_days
+        WHERE qrToken = $1::text
+      `,
+      [qrToken]
+    );
+
+    const cd = res.rows[0];
+    return cd;
   }
 
   ////////// Check Ins //////////

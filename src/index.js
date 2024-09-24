@@ -17,23 +17,26 @@ import {clubEndpointsGE, clubEndpointsSA} from './routes/club.js';
 const main = async () => {
   const PORT = Number(process.env.PORT || 3000);
 
-  if(process.env.USE_HTTPS=="true"){
-	console.log("Using HTTPS");
-  }else{
-	console.log("NOT using HTTPS");
+  if (process.env.USE_HTTPS == 'true') {
+    console.log('Using HTTPS');
+  } else {
+    console.log('NOT using HTTPS');
   }
 
-  const app = (process.env.USE_HTTPS=="true") ? fastify({
-    logger: true,
-	http2: true,
-	https: {
-	  allowHTTP1: true,//fallback support for non https connections
-	  key: fs.readFileSync(process.env.SSL_KEY),
-	  cert: fs.readFileSync(process.env.SSL_CERT)
-	},
-  }) : fastify({
-    logger: true,
-  });
+  const app =
+    process.env.USE_HTTPS == 'true'
+      ? fastify({
+          logger: true,
+          http2: true,
+          https: {
+            allowHTTP1: true, //fallback support for non https connections
+            key: fs.readFileSync(process.env.SSL_KEY),
+            cert: fs.readFileSync(process.env.SSL_CERT),
+          },
+        })
+      : fastify({
+          logger: true,
+        });
 
   app.register(_fastifyCors, {
     // TODO: set up cors
@@ -67,15 +70,15 @@ const main = async () => {
 
   //used by the app to verify the exsistance of this server
   app.get('/ver', (req, reply) => {
-	 reply.type("text/plain");
-		return "attendance app cs";
+    reply.type('text/plain');
+    return 'attendance app cs';
   });
 
   //message that is displayed before the login/signup screen
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
   app.get('/message', (req, reply) => {
-	 reply.type("text/plain");
-		return "ENTER ORGANIZATION SPECIFIC MESSAGE HERE";
+    reply.type('text/plain');
+    return 'ENTER ORGANIZATION SPECIFIC MESSAGE HERE';
   });
 
   try {

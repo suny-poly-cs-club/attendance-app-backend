@@ -124,19 +124,21 @@ export const clubEndpointsGE = (app, _options, done) => {
   );
 
   app.delete(
-    '/:clubId/admins',
+    '/:clubId/admins/:userId',
     {onRequest: [getClubHook({requireAdmin: true})]},
     async (request, reply) => {
-      return reply.status(400).send();
-      reply.type('application/json');
-      const result = safeParse(ClubAdminSchema, request.body);
-      if (!result.success) {
-        return reply.status(400).send(mapValibotToFormError(result.issues));
-      }
+      const userId = request.params.userId;
 
+      //return reply.status(400).send();
+      reply.type('application/json');
+      //const result = safeParse(ClubAdminSchema, request.body);
+      //if (!result.success) {
+      //  return reply.status(400).send(mapValibotToFormError(result.issues));
+      //}
+      //
       const res = await request.ctx.db.removeClubAdmin(
         request.params.clubId,
-        result.output.userId
+        userId
       );
       return res;
     }

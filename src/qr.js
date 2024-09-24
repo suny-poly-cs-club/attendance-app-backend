@@ -30,7 +30,7 @@ export class QRManager {
 	  //combine them into a single string: URLBASE/check-in?code=CLUBDAYCODE
 	  //then return that
 	  
-	  let qrToken = await db.getClubDayQrToken(clubDay.id);
+	  let qrToken = await this.db.getClubDayQrToken(clubDay.id);
 	  
 	  let qRL = this.#baseURL +"/check-in?code="+qrToken;
 	  return qRL;
@@ -62,7 +62,7 @@ export class QRManager {
 	  //if the time is not valid return fasle
 	  //if all is good return an obejct with the field cdID being the internal id of the clubday
     try{
-		let club = await db.getClubDayFromQrToken(token);
+		let club = await this.db.getClubDayFromQrToken(token);
 		if(!club)
 			return false;
 		if(club.startsAt > Date.now() || club.endsAt < Date.now()){

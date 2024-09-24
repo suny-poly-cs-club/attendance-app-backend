@@ -21,7 +21,7 @@ export const checkInRoutes = (app, _options, done) => {
     const code = req.body.code;
     const user = req.user;
 
-    const v = req.ctx.qrManager.verifyQRToken(code);
+    const v = await req.ctx.qrManager.verifyQRToken(code);
 
     if (!v) {
       reply.status(400);

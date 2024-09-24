@@ -326,13 +326,13 @@ export class Database {
   async getClubDayQrToken(clubDayid){
 	  const res = await this.client.query(
 		`
-			SELECT qrToken
+			SELECT qr_token
 			FROM club_days
 			WHERE id = $1::int
 		`,
 		[clubDayid]
 	  );
-	  return res.rows[0].qrToken;
+	  return res.rows[0].qr_token;
   }
   
   async getClubDayFromQrToken(qrToken){
@@ -344,7 +344,7 @@ export class Database {
           ends_at AS "endsAt",
           club_id AS "clubId"
         FROM club_days
-        WHERE qrToken = $1::text
+        WHERE qr_token = $1::text
       `,
       [qrToken]
     );

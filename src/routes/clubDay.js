@@ -130,7 +130,7 @@ export const clubDayRoutes = (app, _options, done) => {
     '/:clubDayId/qr-token',
     {onRequest: [getClubDay]},
     async (req, _reply) => {
-      const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+      const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
       return {token: qrToken};
     }
   );
@@ -139,7 +139,7 @@ export const clubDayRoutes = (app, _options, done) => {
     '/:clubDayId/qr.svg',
     {onRequest: [getClubDay]},
     async (req, reply) => {
-      const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+      const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
       const svg = await qr.toString(qrToken, {type: 'svg'});
       return reply.type('image/svg+xml').send(svg);
     }
@@ -149,7 +149,7 @@ export const clubDayRoutes = (app, _options, done) => {
     '/:clubDayId/qr.png',
     {onRequest: [getClubDay]},
     async (req, reply) => {
-      const qrToken = req.ctx.qrManager.createQRToken(req.clubDay);
+      const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
       const png = qr.toBuffer(qrToken, {type: 'png'});
       return reply.type('image/png').send(png);
     }

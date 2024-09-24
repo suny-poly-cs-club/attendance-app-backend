@@ -20,7 +20,6 @@ export class Context {
    */
   authManager;
 
-
   /**
    * The qr manager instance
    * @type {QRManager}
@@ -34,7 +33,7 @@ export class Context {
   reply;
 
   constructor(options) {
-    Object.assign(this, options)
+    Object.assign(this, options);
   }
 
   /**

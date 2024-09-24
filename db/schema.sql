@@ -271,6 +271,14 @@ ALTER TABLE ONLY public.club_admins
 
 
 --
+-- Name: club_admins club_admins_user_id_club_id_uniq; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.club_admins
+    ADD CONSTRAINT club_admins_user_id_club_id_uniq UNIQUE (user_id, club_id);
+
+
+--
 -- Name: club_days club_days_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -370,4 +378,5 @@ ALTER TABLE ONLY public.club_days
 INSERT INTO public.schema_migrations (version) VALUES
     ('20231023204113'),
     ('20240301230055'),
-    ('20240305221430');
+    ('20240305221430'),
+    ('20240312222157');

@@ -59,24 +59,24 @@ const main = async () => {
     done();
   });
 
-  app.get('/user', {onRequest: [authenticated()]}, req => req.user);
+  app.get('/api/user', {onRequest: [authenticated()]}, req => req.user);
 
-  app.register(userRoutes, {prefix: '/users'});
-  app.register(postEndpoints, {prefix: '/'});
-  app.register(checkInRoutes, {prefix: '/check-in'});
-  app.register(clubDayRoutes, {prefix: '/clubs/:clubId/club-days'});
-  app.register(clubEndpointsGE, {prefix: '/clubs'});
-  app.register(clubEndpointsSA, {prefix: '/clubsa'});
+  app.register(userRoutes, {prefix: '/api/users'});
+  app.register(postEndpoints, {prefix: '/api/'});
+  app.register(checkInRoutes, {prefix: '/api/check-in'});
+  app.register(clubDayRoutes, {prefix: '/api/clubs/:clubId/club-days'});
+  app.register(clubEndpointsGE, {prefix: '/api/clubs'});
+  app.register(clubEndpointsSA, {prefix: '/api/clubsa'});
 
   //used by the app to verify the exsistance of this server
-  app.get('/ver', (req, reply) => {
+  app.get('/api/ver', (req, reply) => {
     reply.type('text/plain');
     return 'attendance app cs';
   });
 
   //message that is displayed before the login/signup screen
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
-  app.get('/message', (req, reply) => {
+  app.get('/api/message', (req, reply) => {
     reply.type('text/plain');
     return 'ENTER ORGANIZATION SPECIFIC MESSAGE HERE';
   });

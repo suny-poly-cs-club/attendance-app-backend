@@ -67,10 +67,11 @@ const getClubDay = async (req, reply) => {
   req.clubDay = clubDay;
 };
 
-// handles /clubs/:clubId/club-days
+// handles /api/clubs/:clubId/club-days
 export const clubDayRoutes = (app, _options, done) => {
   app.addHook('onRequest', authenticated());
 
+  //create a new club day
   app.post('/', async (req, reply) => {
     const result = safeParse(CreateClubDaySchema, req.body);
     if (!result.success) {
@@ -95,6 +96,7 @@ export const clubDayRoutes = (app, _options, done) => {
     return cd;
   });
 
+//get all club days for a given club
   app.get(
     '/',
     {onRequest: [getClubHook({requireAdmin: true})]},
@@ -105,14 +107,17 @@ export const clubDayRoutes = (app, _options, done) => {
     }
   );
 
+  //get a club day
   app.get('/:clubDayId', {onRequest: [getClubDay]}, async (req, _reply) => {
     return req.clubDay;
   });
 
+  //delete a club day
   app.delete('/:clubDayId', {onRequest: [getClubDay]}, async (req, _reply) => {
     return req.ctx.db.deleteClubDay(req.clubDay.id);
   });
 
+  //get the attendies for a day
   app.get('/:clubDayId/attendees', async (req, reply) => {
     const {clubDayId: _id} = req.params;
     const id = Number(_id);

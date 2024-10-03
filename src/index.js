@@ -59,6 +59,7 @@ const main = async () => {
     done();
   });
 
+  //get info fot the current loged in user
   app.get('/api/user', {onRequest: [authenticated()]}, req => req.user);
 
   app.register(userRoutes, {prefix: '/api/users'});

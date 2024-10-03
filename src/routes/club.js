@@ -23,6 +23,7 @@ const ClubAdminSchema = object({
 });
 
 //service admin club endpoints
+//apperently theese dont exsist any more
 export const clubEndpointsSA = (app, _options, done) => {
   //make sure the user is service admin
   app.addHook('onRequest', authenticated({requireAdmin: true}));
@@ -33,6 +34,7 @@ export const clubEndpointsSA = (app, _options, done) => {
 export const clubEndpointsGE = (app, _options, done) => {
   app.addHook('onRequest', authenticated());
 
+  //create a club
   app.post('/', async (request, reply) => {
     // user is not a service admin
     if (!request.user.isAdmin) {
@@ -67,6 +69,7 @@ export const clubEndpointsGE = (app, _options, done) => {
     return cd;
   });
 
+  //delete a club
   app.delete(
     '/:clubId',
     {onRequest: [getClubHook({requireAdmin: true})]},
@@ -95,6 +98,7 @@ export const clubEndpointsGE = (app, _options, done) => {
     return cd;
   });
 
+  //get all the user that are admins of a specific club
   app.get(
     '/:clubId/admins',
     {onRequest: [getClubHook({requireAdmin: true})]},
@@ -104,6 +108,7 @@ export const clubEndpointsGE = (app, _options, done) => {
     }
   );
 
+  //make a user an admin of a club
   app.post(
     '/:clubId/admins',
     {onRequest: [getClubHook({requireAdmin: true})]},
@@ -123,6 +128,7 @@ export const clubEndpointsGE = (app, _options, done) => {
     }
   );
 
+  //remove a user from a clubs admin list
   app.delete(
     '/:clubId/admins/:userId',
     {onRequest: [getClubHook({requireAdmin: true})]},

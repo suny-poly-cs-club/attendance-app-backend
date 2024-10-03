@@ -12,6 +12,7 @@ export const checkInRoutes = (app, _options, done) => {
   // middleware that blocks unauthenticated access
   app.addHook('onRequest', authenticated());
 
+  //check in
   app.post('/', async (req, reply) => {
     const result = safeParse(CheckInSchema, req.body);
     if (!result.success) {

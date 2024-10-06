@@ -9,7 +9,7 @@ import {postEndpoints} from './posted.js';
 import {Context} from './context.js';
 import {Database} from './database.js';
 import {AuthManager, authenticated} from './auth.js';
-import {checkInRoutes} from './routes/checkIn.js';
+import {checkInRoutes, checkCodeRoutes} from './routes/checkIn.js';
 import {QRManager} from './qr.js';
 import {clubDayRoutes} from './routes/clubDay.js';
 import {clubEndpointsGE, clubEndpointsSA} from './routes/club.js';
@@ -65,6 +65,7 @@ const main = async () => {
   app.register(userRoutes, {prefix: '/api/users'});
   app.register(postEndpoints, {prefix: '/api/'});
   app.register(checkInRoutes, {prefix: '/api/check-in'});
+  app.register(checkCodeRoutes, {prefix: '/api/check-code'});
   app.register(clubDayRoutes, {prefix: '/api/clubs/:clubId/club-days'});
   app.register(clubEndpointsGE, {prefix: '/api/clubs'});
   app.register(clubEndpointsSA, {prefix: '/api/clubsa'});

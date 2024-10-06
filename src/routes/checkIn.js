@@ -47,3 +47,21 @@ export const checkInRoutes = (app, _options, done) => {
 
   done();
 };
+
+export const checkCodeRoutes = (app , _options, done) => {
+	
+	//get the name of a club given the check in code
+	app.get("/:dayCode", async (req,reply) => {
+		//validate QrToken
+		const code = req.params.dayCode
+		const name = await req.ctx.db.getClubNameFromQrToken(code);
+		if(name == null){
+			return reply.status(404).send();
+		}else{
+			return {name: name};
+		}
+		
+		
+	});
+	done();
+};

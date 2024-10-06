@@ -352,6 +352,26 @@ export class Database {
     const cd = res.rows[0];
     return cd;
   }
+  
+  async getClubNameFromQrToken(qrToken){
+	  const res = await this.client.query(
+		`
+		Select name 
+		FROM clubs AS cl 
+		JOIN 
+			club_days AS cd 
+			ON cl.id = cd.club_id
+			WHERE cd.qr_token = $1::text
+		`,
+		[qrToken]
+	  );
+	  
+	  if(res.rows.length==0){
+		  return null;
+	  }else{
+		  return res.rows[0].name;
+	  }
+  }
 
   ////////// Check Ins //////////
 

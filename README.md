@@ -266,6 +266,20 @@ Content-Type: application/json
 204 No Content
 ```
 
+#### Get Club Name From Day Code
+**Request**
+```http
+GET /api/check-code/<QRToken>
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{name: string}
+```
+
 ### User Routes
 #### Get Current User
 **Request**

@@ -372,6 +372,22 @@ export class Database {
 		  return res.rows[0].name;
 	  }
   }
+  
+  async hasUserCheckedIntoClubDay(qrToken,userid){
+	  //
+	  const res = await this.client.query(
+		`SELECT 1 
+		FROM check_ins ci 
+		JOIN club_days cd 
+		ON ci.club_day_id = cd.id 
+		WHERE 
+			ci.user_id = $1::int 
+			AND cd.qr_token = $2::text`,
+		[userid,qrToken]
+	  );
+	  
+	  return !!res.rows.length;
+  }
 
   ////////// Check Ins //////////
 

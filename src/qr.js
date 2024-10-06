@@ -62,15 +62,19 @@ export class QRManager {
 	  //if the time is not valid return fasle
 	  //if all is good return an obejct with the field cdID being the internal id of the clubday
     try{
-		let club = await this.db.getClubDayFromQrToken(token);
-		if(!club)
-			return false;
-		if(club.startsAt > Date.now() || club.endsAt < Date.now()){
+		let clubDay = await this.db.getClubDayFromQrToken(token);
+		if(!clubDay){
+			//console.log("club not found");
 			return false;
 		}
-		const returnable = {cdId: club.id, nbf: Math.round(clubDay.startsAt.getTime() / 1_000), exp: Math.round(clubDay.endsAt.getTime() / 1_000)};
+		if(clubDay.startsAt > Date.now() || clubDay.endsAt < Date.now()){
+			//console.log("club out of time");
+			return false;
+		}
+		const returnable = {cdID: clubDay.id, nbf: Math.round(clubDay.startsAt.getTime() / 1_000), exp: Math.round(clubDay.endsAt.getTime() / 1_000)};
 		return returnable;
 	}catch(e){
+		//console.log(e);
 		return false;
 	}
 	

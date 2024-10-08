@@ -280,6 +280,21 @@ Content-Type: application/json
 {name: string}
 ```
 
+### Check if the current user has signed into this club Day
+**Request**
+```http
+POST /api/check-code/<QRToken>
+Authorization: Token
+```
+
+**Response**
+```http
+200 OK
+Content-Type: application/json
+
+{checkedIn: boolean}
+```
+
 ### User Routes
 #### Get Current User
 **Request**

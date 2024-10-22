@@ -22,7 +22,7 @@ export class AuthManager {
   createToken(user) {
     return jwt.sign({}, this.#jwtSecret, {
       subject: user.id.toString(),
-      expiresIn: '1h',
+      expiresIn: '30d',
       algorithm: 'HS256',
     });
   }

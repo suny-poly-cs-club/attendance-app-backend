@@ -80,8 +80,7 @@ ALTER SEQUENCE public.check_ins_id_seq OWNED BY public.check_ins.id;
 CREATE TABLE public.club_admins (
     id integer NOT NULL,
     user_id integer NOT NULL,
-    club_id bigint NOT NULL,
-    is_admin boolean NOT NULL
+    club_id bigint NOT NULL
 );
 
 
@@ -114,6 +113,7 @@ CREATE TABLE public.club_days (
     starts_at timestamp with time zone NOT NULL,
     ends_at timestamp with time zone NOT NULL,
     club_id integer NOT NULL,
+    qr_token character varying(20),
     CONSTRAINT club_days_check CHECK ((ends_at > starts_at))
 );
 
@@ -379,4 +379,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20231023204113'),
     ('20240301230055'),
     ('20240305221430'),
-    ('20240312222157');
+    ('20240312222157'),
+    ('20240924213747');

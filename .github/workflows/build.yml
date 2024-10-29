@@ -19,7 +19,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{github.actor}}
+          username: ${{github.repository_owner}}
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Extract metadata (tags, labels) for Docker
@@ -27,7 +27,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-              ghcr.io/${{github.actor}}/${{github.event.repository.name}}
+              ghcr.io/${{github.repository_owner}}/${{github.event.repository.name}}
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ${{matrix.dockerfile}}
+          file: ./Dockerfile
           push: true
           tags: ${{steps.meta.outputs.tags}}
           labels: ${{steps.meta.outputs.labels}}

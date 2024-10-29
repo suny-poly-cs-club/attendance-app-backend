@@ -4,3 +4,4 @@
 restart.bat
 runDocker.sh
 /ssl/*
+.idea/*

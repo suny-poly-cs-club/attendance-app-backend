@@ -88,7 +88,7 @@ type CheckIn = {
 #### Register User
 **Request**
 ```http
-POST /api/sign-up
+POST /sign-up
 Content-Type: application/json
 
 {
@@ -110,7 +110,7 @@ Content-Type: application/json
 #### Log In
 **Request**
 ```http
-POST /api/login
+POST /login
 Content-Type: application/json
 
 {email: string; password: string}
@@ -131,7 +131,7 @@ Content-Type: application/json
 #### Get All Club Days For a Club
 **Request**
 ```http
-GET /api/clubs/<id>/club-days
+GET /clubs/<id>/club-days
 Authorization: Token
 
 parameter
@@ -148,7 +148,7 @@ ClubDay[]
 #### Create Club Day
 **Request**
 ```http
-POST /api/clubs/<id>/club-days
+POST /clubs/<id>/club-days
 Authorization: Token
 Content-Type: application/json
 
@@ -166,7 +166,7 @@ ClubDay
 #### Get Club Day
 **Request**
 ```http
-GET /api/clubs/<club id>/club-days/<club day id>
+GET /clubs/<club id>/club-days/<club day id>
 Authorization: Token
 ```
 
@@ -181,7 +181,7 @@ ClubDay
 #### Get Club Day Attendees
 **Request**
 ```http
-GET /api/clubs/<club id>/club-days/<club day id/attendees
+GET /clubs/<club id>/club-days/<club day id/attendees
 Authorization: Token
 ```
 
@@ -196,7 +196,7 @@ User[]
 #### Delete Club Day
 **Request**
 ```http
-DELETE /api/clubs/<club id>/club-days/<club day id>
+DELETE /clubs/<club id>/club-days/<club day id>
 Authorization: Token
 ```
 
@@ -211,7 +211,7 @@ ClubDay
 #### Get QR Token
 **Request**
 ```http
-GET /api/clubs/<club id>/club-days/<club day id>/qr-token
+GET /clubs/<club id>/club-days/<club day id>/qr-token
 Authorization: Token
 ```
 
@@ -226,7 +226,7 @@ Content-Type: application/json
 #### Get QR Code as PNG
 **Request**
 ```http
-GET /api/clubs/<club id>/club-days/<club day id>/qr-token.png
+GET /clubs/<club id>/club-days/<club day id>/qr-token.png
 Authorization: Token
 ```
 
@@ -240,7 +240,7 @@ NOTE: this is currently broken
 #### Get QR Code as SVG
 **Request**
 ```http
-GET /api/clubs/<club id>/club-days/<club day id>/qr-token.svg
+GET /clubs/<club id>/club-days/<club day id>/qr-token.svg
 Authorization: Token
 ```
 
@@ -254,7 +254,7 @@ Content-Type: image/svg+xml
 #### Check In
 **Request**
 ```http
-POST /api/check-in
+POST /check-in
 Authorization: Token
 Content-Type: application/json
 
@@ -269,7 +269,7 @@ Content-Type: application/json
 #### Get Club Name From Day Code
 **Request**
 ```http
-GET /api/check-code/<QRToken>
+GET /check-code/<QRToken>
 ```
 
 **Response**
@@ -283,7 +283,7 @@ Content-Type: application/json
 ### Check if the current user has signed into this club Day
 **Request**
 ```http
-POST /api/check-code/<QRToken>
+POST /check-code/<QRToken>
 Authorization: Token
 ```
 
@@ -299,7 +299,7 @@ Content-Type: application/json
 #### Get Current User
 **Request**
 ```http
-GET /api/user
+GET /user
 Authorization: Token
 ```
 
@@ -314,7 +314,7 @@ User
 #### Get All Users
 **Request**
 ```http
-GET /api/users
+GET /users
 Authorization: Token (requires isAdmin=true)
 ```
 
@@ -329,8 +329,8 @@ Content-Type: application/json
 #### Search Users
 **Request**
 ```http
-POST /api/users/search
-Authorization: Token 
+POST /users/search
+Authorization: Token
 Content-Type: application/json
 
 {querey: string} (space seperated list of words to search)
@@ -347,7 +347,7 @@ Content-Type: application/json
 #### Modify a user (change weather they are a service admin)
 **Request**
 ```http
-PATCH /api/users/<id>
+PATCH /users/<id>
 Authorization: Token  (requires isAdmin=true)
 Content-Type: application/json
 
@@ -371,7 +371,7 @@ User
 note: service admins are automaticly admin of all clubs
 **Request**
 ```http
-GET /api/clubs
+GET /clubs
 Authorization: Token
 ```
 
@@ -387,7 +387,7 @@ Content-Type: application/json
 note: service admins are automaticly admin of all clubs
 **Request**
 ```http
-GET /api/clubs/<id>/admins
+GET /clubs/<id>/admins
 Authorization: Token
 ```
 
@@ -404,7 +404,7 @@ Content-Type: application/json
 ### Make a User an Admin of a Club
 **Request**
 ```http
-POST /api/clubs/<id>/admins
+POST /clubs/<id>/admins
 Authorization: Token
 Content-Type: application/json
 
@@ -422,7 +422,7 @@ Content-Type: application/json
 ### Make a User no Longer an Admin of a Club
 **Request**
 ```http
-DELETE /api/clubs/<club id>/admins/<user id>
+DELETE /clubs/<club id>/admins/<user id>
 Authorization: Token
 Content-Type: application/json
 
@@ -440,7 +440,7 @@ Content-Type: application/json
 #### Create a New Club
 **Request**
 ```http
-POST /api/clubs
+POST /clubs
 Authorization: Token
 Content-Type: application/json
 
@@ -459,7 +459,7 @@ Content-Type: application/json
 #### Delete a club
 **Request**
 ```http
-DELETE /api/clubs/<id>
+DELETE /clubs/<id>
 Authorization: Token
 
 ```

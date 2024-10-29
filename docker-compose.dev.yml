@@ -5,6 +5,10 @@ services:
       - '.:/usr/src/app'
       - '/usr/src/app/node_modules'
 
+  migrate:
+    volumes:
+      - './db:/db'
+
   postgres:
     ports:
       - '5432:5432'

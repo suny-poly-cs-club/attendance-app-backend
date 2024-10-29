@@ -14,7 +14,6 @@ services:
         condition: 'service_healthy'
 
   migrate:
-    # image: 'amacneil/dbmate'
     image: 'ghcr.io/suny-poly-cs-club/attendance-app-backend-migrate'
     build:
       context: .
@@ -25,8 +24,6 @@ services:
       DBMATE_WAIT: 'true'
     env_file:
       - '.env'
-    volumes:
-      - './db:/db'
     depends_on:
       postgres:
         condition: 'service_healthy'

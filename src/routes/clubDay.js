@@ -1,7 +1,7 @@
 import qr from 'qrcode';
-import {object, isoTimestamp, custom, string, safeParse} from 'valibot';
+import {custom, isoTimestamp, object, safeParse, string} from 'valibot';
 
-import {authenticated} from '../auth.js';
+import {authenticated} from '../middleware/auth.js';
 import {mapValibotToFormError} from '../util/err.js';
 
 const CreateClubDaySchema = object({
@@ -96,7 +96,7 @@ export const clubDayRoutes = (app, _options, done) => {
     return cd;
   });
 
-//get all club days for a given club
+  //get all club days for a given club
   app.get(
     '/',
     {onRequest: [getClubHook({requireAdmin: true})]},

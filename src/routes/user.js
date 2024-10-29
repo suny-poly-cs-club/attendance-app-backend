@@ -1,5 +1,5 @@
-import {authenticated} from '../auth.js';
-import {object, safeParse, string, boolean, optional} from 'valibot';
+import {boolean, object, optional, safeParse, string} from 'valibot';
+import {authenticated} from '../middleware/auth.js';
 import {mapValibotToFormError} from '../util/err.js';
 
 const searchWordsSchema = object({

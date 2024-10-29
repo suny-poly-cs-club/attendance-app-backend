@@ -17,17 +17,18 @@ const {Client} = pg;
  * @property {Date} endsAt
  * @property {number} clubId
  */
- 
- function makeid(length) {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-    return result;
+
+function makeid(length) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
 }
 
 export class Database {
@@ -184,23 +185,24 @@ export class Database {
     if (startsAt.getTime() > endsAt.getTime()) {
       throw new Error('End date must come before start date');
     }
-	//generate a unique qr token for this club day
-	let qrToken = "";
-	let invalidQrToken = true;
-	do{
-		//generate token
-		qrToken = makeid(10);
-		const check = await this.client.query(
-			`
+    //generate a unique qr token for this club day
+    let qrToken = '';
+    let invalidQrToken = true;
+    do {
+      //generate token
+      qrToken = makeid(10);
+      const check = await this.client.query(
+        `
 			SELECT
 				id
 			FROM club_days
 			WHERE
 				qr_token = $1::text
 			`,
-			[qrToken]);
-		invalidQrToken = check.rows.length > 0;
-	}while(invalidQrToken);
+        [qrToken]
+      );
+      invalidQrToken = check.rows.length > 0;
+    } while (invalidQrToken);
 
     const res = await this.client.query(
       `
@@ -212,7 +214,7 @@ export class Database {
           ends_at AS "endsAt",
           club_id AS "clubId"
       `,
-      [startsAt, endsAt, clubId,qrToken]
+      [startsAt, endsAt, clubId, qrToken]
     );
 
     const cd = res.rows[0];
@@ -322,21 +324,21 @@ export class Database {
 
     return res.rows;
   }
-  
-  async getClubDayQrToken(clubDayid){
-	  const res = await this.client.query(
-		`
+
+  async getClubDayQrToken(clubDayid) {
+    const res = await this.client.query(
+      `
 			SELECT qr_token
 			FROM club_days
 			WHERE id = $1::int
 		`,
-		[clubDayid]
-	  );
-	  return res.rows[0].qr_token;
+      [clubDayid]
+    );
+    return res.rows[0].qr_token;
   }
-  
-  async getClubDayFromQrToken(qrToken){
-	const res = await this.client.query(
+
+  async getClubDayFromQrToken(qrToken) {
+    const res = await this.client.query(
       `
         SELECT
           id,
@@ -352,10 +354,10 @@ export class Database {
     const cd = res.rows[0];
     return cd;
   }
-  
-  async getClubNameFromQrToken(qrToken){
-	  const res = await this.client.query(
-		`
+
+  async getClubNameFromQrToken(qrToken) {
+    const res = await this.client.query(
+      `
 		Select name 
 		FROM clubs AS cl 
 		JOIN 
@@ -363,30 +365,30 @@ export class Database {
 			ON cl.id = cd.club_id
 			WHERE cd.qr_token = $1::text
 		`,
-		[qrToken]
-	  );
-	  
-	  if(res.rows.length==0){
-		  return null;
-	  }else{
-		  return res.rows[0].name;
-	  }
+      [qrToken]
+    );
+
+    if (res.rows.length == 0) {
+      return null;
+    } else {
+      return res.rows[0].name;
+    }
   }
-  
-  async hasUserCheckedIntoClubDay(qrToken,userid){
-	  //
-	  const res = await this.client.query(
-		`SELECT 1 
+
+  async hasUserCheckedIntoClubDay(qrToken, userid) {
+    //
+    const res = await this.client.query(
+      `SELECT 1 
 		FROM check_ins ci 
 		JOIN club_days cd 
 		ON ci.club_day_id = cd.id 
 		WHERE 
 			ci.user_id = $1::int 
 			AND cd.qr_token = $2::text`,
-		[userid,qrToken]
-	  );
-	  
-	  return !!res.rows.length;
+      [userid, qrToken]
+    );
+
+    return !!res.rows.length;
   }
 
   ////////// Check Ins //////////

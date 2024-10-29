@@ -1,17 +1,17 @@
 import {PostgresErrorCode} from '../database.js';
 
 import {
-  object,
-  string,
   email,
-  minLength,
-  maxLength,
-  safeParse,
   flatten,
+  maxLength,
+  minLength,
   number,
+  object,
+  safeParse,
+  string,
 } from 'valibot';
+import {authenticated} from '../middleware/auth.js';
 import {mapValibotToFormError} from '../util/err.js';
-import {authenticated} from '../auth.js';
 import {getClubHook} from './clubDay.js';
 
 const CreateClubSchema = object({

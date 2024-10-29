@@ -1,6 +1,6 @@
-import {AuthManager} from './auth.js';
-import {Database} from './database.js';
-import {QRManager} from './qr.js';
+import {AuthManager} from '../auth.js';
+import {Database} from '../database.js';
+import {QRManager} from '../qr.js';
 
 /**
  * A class created with every request that holds instances of everything used around the app
@@ -55,5 +55,15 @@ export class Context {
     const userID = Number(tokenClaims.sub);
 
     return this.db.getUser(userID);
+  }
+
+  /** Registers the Context middleware */
+  static register(app, options) {
+    app.addHook('onRequest', (req, reply, done) => {
+      const ctx = new Context({req, reply, ...options});
+      req.ctx = ctx;
+
+      done();
+    });
   }
 }

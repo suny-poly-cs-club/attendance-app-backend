@@ -1,5 +1,6 @@
 services:
   backend:
+    image: 'ghcr.io/suny-poly-cs-club/attendance-app-backend'
     build: '.'
     ports:
       - '${PORT}:${PORT}'
@@ -13,7 +14,11 @@ services:
         condition: 'service_healthy'
 
   migrate:
-    image: 'amacneil/dbmate'
+    # image: 'amacneil/dbmate'
+    image: 'ghcr.io/suny-poly-cs-club/attendance-app-backend-migrate'
+    build:
+      context: .
+      dockerfile: ./docker/migrate/Dockerfile
     command: 'up'
     environment:
       DATABASE_URL: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable'

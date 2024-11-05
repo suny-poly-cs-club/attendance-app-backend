@@ -155,7 +155,7 @@ export const clubDayRoutes = (app, _options, done) => {
     {onRequest: [getClubDay]},
     async (req, reply) => {
       const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
-      const png = qr.toBuffer(qrToken, {type: 'png'});
+      const png = await qr.toBuffer(qrToken, {type: 'png'});
       return reply.type('image/png').send(png);
     }
   );

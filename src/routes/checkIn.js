@@ -31,46 +31,53 @@ export const checkInRoutes = (app, _options, done) => {
     try {
       await req.ctx.db.checkIn(user.id, v.cdID);
     } catch (err) {
-      if (err.code === PostgresErrorCode.UniqueViolation) {
-        reply.status(409);
-        return {message: 'already checked in'};
+      // if (err.code === PostgresErrorCode.UniqueViolation) {
+      //   reply.status(409);
+      //   return {message: 'already checked in'};
+      // }
+
+      if (err.code !== PostgresErrorCode.UniqueViolation) {
+        console.error(err);
+        return reply.status(500).send();
       }
-
-      console.error(err);
-
-      return reply.status(500).send();
     }
 
-    return reply.status(204).send();
+    const club = await req.ctx.db.getClubFromQrToken(code);
+    console.log(club);
+    return club;
+
+    // return reply.status(204).send();
+    // return reply.status(200).send()
   });
 
   done();
 };
 
 export const checkCodeRoutes = (app, _options, done) => {
+  app.addHook('onRequest', authenticated());
   //get the name of a club given the check in code
   app.get('/:dayCode', async (req, reply) => {
     //TODO validate QrToken
     const code = req.params.dayCode;
     const name = await req.ctx.db.getClubNameFromQrToken(code);
-    if (name == null) {
+    if (!name) {
       return reply.status(404).send();
-    } else {
-      reply.type('application/json');
-      return {name: name};
     }
+
+    reply.type('application/json');
+    return {name: name};
   });
 
-  //check if a user has allready checked into a club day
+  //check if a user has already checked into a club day
 
   app.post('/:dayCode', async (req, reply) => {
-    const authdUser = await req.ctx.getAuthenticatedUser();
-
-    // the user does not exist
-    if (!authdUser) {
-      reply.status(401).send();
-      return;
-    }
+    // const authdUser = await req.ctx.getAuthenticatedUser();
+    //
+    // // the user does not exist
+    // if (!authdUser) {
+    //   reply.status(401).send();
+    //   return;
+    // }
 
     reply.type('application/json');
     //TODO validate QrToken

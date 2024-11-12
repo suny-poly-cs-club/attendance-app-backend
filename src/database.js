@@ -1,4 +1,7 @@
+import {randomInt} from 'node:crypto';
+import {toLuhn} from '@benricheson101/util';
 import pg from 'pg';
+
 const {Client} = pg;
 
 /**
@@ -18,18 +21,26 @@ const {Client} = pg;
  * @property {number} clubId
  */
 
-function makeid(length) {
-  let result = '';
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
+// function makeid(length) {
+//   let result = '';
+//   const characters =
+//     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   const charactersLength = characters.length;
+//   let counter = 0;
+//   while (counter < length) {
+//     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+//     counter += 1;
+//   }
+//   return result;
+// }
+
+const CHECK_IN_CODE_LENGTH = 6;
+const makeid = () => {
+  const nr = randomInt(10 ** (CHECK_IN_CODE_LENGTH - 2), 10 ** (CHECK_IN_CODE_LENGTH - 1) - 1);
+  const l = toLuhn(nr).toString().padStart(CHECK_IN_CODE_LENGTH, '0');
+  console.log('random number:', nr, l);
+  return l;
+};
 
 export class Database {
   client;
@@ -190,7 +201,8 @@ export class Database {
     let invalidQrToken = true;
     do {
       //generate token
-      qrToken = makeid(10);
+      // TODO: make this work on insert fail instead of select
+      qrToken = makeid();
       const check = await this.client.query(
         `
 			SELECT
@@ -358,32 +370,46 @@ export class Database {
   async getClubNameFromQrToken(qrToken) {
     const res = await this.client.query(
       `
-		Select name 
-		FROM clubs AS cl 
-		JOIN 
-			club_days AS cd 
+		Select name
+		FROM clubs AS cl
+		JOIN
+			club_days AS cd
 			ON cl.id = cd.club_id
 			WHERE cd.qr_token = $1::text
 		`,
       [qrToken]
     );
 
-    if (res.rows.length == 0) {
+    if (!res.rows.length) {
       return null;
-    } else {
-      return res.rows[0].name;
     }
+    return res.rows[0].name;
+  }
+
+  async getClubFromQrToken(qrToken) {
+    const res = await this.client.query(
+      `
+        SELECT c.*
+        FROM clubs c
+        INNER JOIN club_days d
+        ON c.id = d.club_id
+        WHERE d.qr_token = $1::text
+      `,
+      [qrToken],
+    );
+
+    return res.rows?.[0];
   }
 
   async hasUserCheckedIntoClubDay(qrToken, userid) {
     //
     const res = await this.client.query(
-      `SELECT 1 
-		FROM check_ins ci 
-		JOIN club_days cd 
-		ON ci.club_day_id = cd.id 
-		WHERE 
-			ci.user_id = $1::int 
+      `SELECT 1
+		FROM check_ins ci
+		JOIN club_days cd
+		ON ci.club_day_id = cd.id
+		WHERE
+			ci.user_id = $1::int
 			AND cd.qr_token = $2::text`,
       [userid, qrToken]
     );

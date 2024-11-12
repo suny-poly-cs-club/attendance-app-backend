@@ -135,8 +135,11 @@ export const clubDayRoutes = (app, _options, done) => {
     '/:clubDayId/qr-token',
     {onRequest: [getClubDay]},
     async (req, _reply) => {
-      const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
-      return {token: qrToken};
+      // const qrToken = await req.ctx.qrManager.createQRToken(req.clubDay);
+      // return {token: qrToken};
+
+      const token = await req.ctx.db.getClubDayQrToken(req.clubDay.id);
+      return {token};
     }
   );
 

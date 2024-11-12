@@ -1,3 +1,4 @@
+import { isValidLuhn } from '@benricheson101/util';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -31,8 +32,8 @@ export class QRManager {
     //then return that
 
     const qrToken = await this.db.getClubDayQrToken(clubDay.id);
-
     const qRL = `${this.#baseURL}/check-in?code=${qrToken}`;
+
     return qRL;
     //return jwt.sign(
     //  {
@@ -61,6 +62,11 @@ export class QRManager {
     //check it is a valid club checkin time
     //if the time is not valid return fasle
     //if all is good return an obejct with the field cdID being the internal id of the clubday
+    if (!isValidLuhn(Number(token))) {
+      console.log('invalid luhn', {token})
+      return false;
+    }
+
     try {
       const clubDay = await this.db.getClubDayFromQrToken(token);
       if (!clubDay) {

@@ -36,7 +36,10 @@ const {Client} = pg;
 
 const CHECK_IN_CODE_LENGTH = 6;
 const makeid = () => {
-  const nr = randomInt(10 ** (CHECK_IN_CODE_LENGTH - 2), 10 ** (CHECK_IN_CODE_LENGTH - 1) - 1);
+  const nr = randomInt(
+    10 ** (CHECK_IN_CODE_LENGTH - 2),
+    10 ** (CHECK_IN_CODE_LENGTH - 1) - 1
+  );
   const l = toLuhn(nr).toString().padStart(CHECK_IN_CODE_LENGTH, '0');
   console.log('random number:', nr, l);
   return l;
@@ -395,7 +398,7 @@ export class Database {
         ON c.id = d.club_id
         WHERE d.qr_token = $1::text
       `,
-      [qrToken],
+      [qrToken]
     );
 
     return res.rows?.[0];

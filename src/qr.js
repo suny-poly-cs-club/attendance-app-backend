@@ -1,4 +1,4 @@
-import { isValidLuhn } from '@benricheson101/util';
+import {isValidLuhn} from '@benricheson101/util';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -35,24 +35,6 @@ export class QRManager {
     const qRL = `${this.#baseURL}/check-in?code=${qrToken}`;
 
     return qRL;
-    //return jwt.sign(
-    //  {
-    //    cdID: clubDay.id,
-    //
-    //    // not valid before - start time
-    //    nbf: Math.round(clubDay.startsAt.getTime() / 1_000),
-    //
-    //    // expires at - end time
-    //    exp: Math.round(clubDay.endsAt.getTime() / 1_000),
-    //
-    //    // issued at - current time
-    //    iat: Math.round(Date.now() / 1_000),
-    //  },
-    //  this.#jwtSecret,
-    //  {
-    //    algorithm: 'HS256',
-    //  }
-    //);
   }
 
   async verifyQRToken(token) {
@@ -63,7 +45,7 @@ export class QRManager {
     //if the time is not valid return fasle
     //if all is good return an obejct with the field cdID being the internal id of the clubday
     if (!isValidLuhn(Number(token))) {
-      console.log('invalid luhn', {token})
+      console.log('invalid luhn', {token});
       return false;
     }
 

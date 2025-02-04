@@ -21,7 +21,7 @@
   "scripts": {
     "build": "docker compose build --build-arg GIT_COMMIT=$(git rev-parse --short HEAD)",
     "dev": "docker compose down && docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres && docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build backend",
-    "psql": "docker compose exec postgres psql -U postgres db",
+    "psql": "docker compose exec postgres psql -U postgres ${POSTGRES_DB:-db}",
     "dbmate": "docker compose run migrate",
     "fmt": "biome check --write .",
     "lint": "biome lint ."

@@ -76,6 +76,7 @@ const main = async () => {
   //ex: <ORGANIZATION> attandace login. contact IT if you need help
   app.get('/message', (_req, reply) => {
     reply.type('text/plain');
+    return process.env.MESSAGE
     return 'ENTER ORGANIZATION SPECIFIC MESSAGE HERE';
   });
 

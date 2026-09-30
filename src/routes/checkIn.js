@@ -16,6 +16,7 @@ export const checkInRoutes = (app, _options, done) => {
   app.post('/', async (req, reply) => {
     const result = safeParse(CheckInSchema, req.body);
     if (!result.success) {
+      console.log("Safe parse failed")
       return reply.status(400).send(mapValibotToFormError(result.issues));
     }
 

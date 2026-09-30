@@ -52,11 +52,11 @@ export class QRManager {
     try {
       const clubDay = await this.db.getClubDayFromQrToken(token);
       if (!clubDay) {
-        //console.log("club not found");
+        console.log("club day not found: "+token);
         return false;
       }
       if (clubDay.startsAt > Date.now() || clubDay.endsAt < Date.now()) {
-        //console.log("club out of time");
+        console.log("club day out of time: " +token+" ][ "+Date.now());
         return false;
       }
       const returnable = {
@@ -66,7 +66,7 @@ export class QRManager {
       };
       return returnable;
     } catch (e) {
-      //console.log(e);
+      console.log("error validating club day token",e);
       return false;
     }
 
